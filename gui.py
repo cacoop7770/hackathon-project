@@ -1,21 +1,5 @@
 import pygame as pg
 
-# this is where the gui is created and maintained
-pg.init()
-
-gameDisplay = pg.display.set_mode((1000, 600))
-pg.display.set_caption("Hackathon project")
-pg.display.update()
-
-pg.joystick.init()
-try:
-    controller = pg.joystick.Joystick(0)
-    controller.init()
-except:
-    print "No DS4 connected"
-    controller = None
-
-
 
 class Game:
     def __init__(self, main_surface):
@@ -104,34 +88,41 @@ class Game:
         self.main_surf.blit(self.surf2, (350, 0))
     
         pg.display.flip()
+
+if __name__ == '__main__':
+    # this is where the gui is created and maintained
+    pg.init()
+
+    gameDisplay = pg.display.set_mode((1000, 600))
+    pg.display.set_caption("Hackathon project")
+    pg.display.update()
+
+    pg.joystick.init()
+    try:
+        controller = pg.joystick.Joystick(0)
+        controller.init()
+    except:
+        print "No DS4 connected"
+        controller = None
+
+    game = Game(gameDisplay)
+
+
+    # Game loop
+    while True:
+       # pg.display.update()
+
+        events = pg.event.get()
+
+        game.update_ui(events)
         
 
-class TimeMachineGame(Game):
-    def __init__(self, surface):
-        Game.__init__(self, surface)
+        # check which is active
+        # and then update THAT ui to handle "events"
+        
+        
+        # DC update
+        
+        # TM update
 
-
-class DataCenterGame(Game):
-    def __init__(self, surface):
-        Game.__init__(self, surface)
-
-game = Game(gameDisplay)
-
-# Game loop
-while True:
-   # pg.display.update()
-
-    events = pg.event.get()
-
-    game.update_ui(events)
-    
-
-    # check which is active
-    # and then update THAT ui to handle "events"
-    
-    
-    # DC update
-    
-    # TM update
-
-    pg.display.flip()
+        pg.display.flip()

@@ -3,11 +3,14 @@ from gui import Game
 
 
 class TimeMachine(Game):
+    block_height = 10
+    block_width = 10
     def __init__(self, surface):
         Game.__init__(self, surface)
         # The main surface is in self.main_surf
         # so want to blit my own surface there
         self.surf = pg.Surface((650, 600))# Screen is 650x600
+        
 
     def handle_event(self, event):
          # handle keyboard or ds4
@@ -34,8 +37,14 @@ class TimeMachine(Game):
             for event in events:
                 self.handle_event(event)
 
-        # draw on the surface
+        ## draw on the surface ##
+
+        # first fill the background
         self.surf.fill((255, 255, 255))
+
+        # then draw the objects
+        black = (0, 0, 0)
+        pg.draw.rect(self.surf, black, [self.pos[0], self.pos[1], TimeMachine.block_width, TimeMachine.block_height])
 
         # return the surface so it can be blit
         return self.surf

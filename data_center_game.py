@@ -39,7 +39,7 @@ class DataCenter(Game):
         
 
         # Choose background color of surface (r,g,b)
-        self.surf.fill((255, 255, 255))
+        self.surf.fill((0, 255, 0))
 
         # return the surface so it can be blit
         return self.surf
