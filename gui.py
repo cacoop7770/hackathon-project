@@ -2,12 +2,9 @@ import pygame as pg
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, controller):
         self._running = True
-        self.controller = None
-
-    def set_controller(self, cont):
-        self.controller = cont
+        self.controller = controller
 
     def is_active(self):
         return self._running

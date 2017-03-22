@@ -28,9 +28,8 @@ f.close()
 print data
 
 # init the games
-tm = TimeMachine()
-tm.set_controller(controller)
-dc = DataCenter()
+tm = TimeMachine(controller)
+dc = DataCenter(controller)
 
 # start the game
 while True:
