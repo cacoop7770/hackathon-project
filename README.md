@@ -1,1 +1,3 @@
-this is a read me
+LATENCY GAME
+
+>> python engine.py
