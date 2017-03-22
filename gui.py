@@ -2,10 +2,8 @@ import pygame as pg
 
 
 class Game:
-    def __init__(self, main_surface):
+    def __init__(self):
         self._running = True
-        self.pos = [300, 300]
-        self.speed = [2, 2]
         self.controller = None
 
     def set_controller(self, cont):

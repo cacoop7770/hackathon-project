@@ -17,11 +17,17 @@ except pg.error:
     controller = None
 
 # init the games
-tm = TimeMachine(gameDisplay)
-dc = DataCenter(gameDisplay)
+tm = TimeMachine()
+tm.set_controller(controller)
+dc = DataCenter()
 
 # start the game
 while True:
+    val = controller.get_axis(1)
+    
+    if val != 0:
+        print val
+        print "\t", controller.get_hat(0)
     # Game goes on right here?
     events = pg.event.get()
 
@@ -32,4 +38,6 @@ while True:
     gameDisplay.blit(dc_surf, (0, 0))
     gameDisplay.blit(tm_surf, (350, 0))
     pg.display.flip()
+    pg.time.delay(10)# smooth out the animation by adding a delay of 1/10th of a second
+    
     
