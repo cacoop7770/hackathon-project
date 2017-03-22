@@ -85,7 +85,7 @@ class Game:
         if self.is_active():
             for event in events:
                 self.handle_event(event)
-        
+
         self.move_rect()
 
         # update the ui
@@ -96,10 +96,9 @@ class Game:
         #self.main_surf.blit(self.surf, (400, 0), self.rect2)
 
         self.surf1.fill((0, 255, 0))
-        #self.surf2.fill((255, 255, 255))
-        self.surf2.fill((0, 0, 255))
+        self.surf2.fill((255, 255, 255))
+        #self.surf2.fill((0, 0, 255))
 
-    
         pg.draw.rect(self.surf2, (0, 0, 0), [self.pos[0], self.pos[1], 100, 100])
         self.main_surf.blit(self.surf1, (0, 0))
         self.main_surf.blit(self.surf2, (350, 0))
@@ -110,6 +109,7 @@ class Game:
 class TimeMachineGame(Game):
     def __init__(self, surface):
         Game.__init__(self, surface)
+
 
 class DataCenterGame(Game):
     def __init__(self, surface):
