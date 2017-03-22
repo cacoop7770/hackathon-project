@@ -1,3 +1,5 @@
+"""Allow for two games to be run at the same time."""
+
 import json
 import pygame as pg
 from time_machine_game import TimeMachine
