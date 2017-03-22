@@ -1,5 +1,15 @@
 import pygame as pg
+
 from gui import Game
+
+
+class Player:
+    """Any of the players (past, present, and future)."""
+
+    def __init__(self, player_num):
+        self._player_num
+        self._pos = pg.math.Vector2(300, 300)
+    
 
 
 class TimeMachine(Game):
@@ -9,12 +19,12 @@ class TimeMachine(Game):
     max_speed = 1
     jump_power = 3
 
-    def __init__(self):
-        Game.__init__(self)
+    def __init__(self, controller):
+        Game.__init__(self, controller)
         # The main surface is in self.main_surf
         # so want to blit my own surface there
         self.surf = pg.Surface((650, 600))# Screen is 650x600
-        self.speed = [0, 0]
+        self.vel = [0, 0]
         self.pos = [300, 300]
         self.jump_pos = self.pos
         self.jump = False
@@ -34,19 +44,19 @@ class TimeMachine(Game):
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_LEFT:
                 #self.pos[0] -= 10
-                self.speed[0] = -TimeMachine.max_speed
+                self.vel[0] = -TimeMachine.max_speed
             if event.key == pg.K_RIGHT:
-                self.speed[0] = TimeMachine.max_speed
+                self.vel[0] = TimeMachine.max_speed
 
             if event.key == pg.K_SPACE:
                 #print "Jumped!"
                 if not self.jump:
                     self.jump_pos = [self.pos[0], self.pos[1]]
-                    self.speed[1] = -TimeMachine.jump_power
+                    self.vel[1] = -TimeMachine.jump_power
                     self.jump = True
                 
         if event.type == pg.KEYUP:
-            self.speed[0] = 0
+            self.vel[0] = 0
 
         if event.type == pg.JOYBUTTONDOWN:
             print "Event type:", event.button
@@ -54,7 +64,7 @@ class TimeMachine(Game):
                 #print "Jumped!"
                 if not self.jump:
                     self.jump_pos = [self.pos[0], self.pos[1]]
-                    self.speed[1] = -TimeMachine.jump_power
+                    self.vel[1] = -TimeMachine.jump_power
                     self.jump = True
 
         if self.controller:
@@ -62,37 +72,45 @@ class TimeMachine(Game):
             hat = self.controller.get_hat(0)
             if hat == (-1, 0):
                 # move left
-                self.speed[0] = -TimeMachine.max_speed
+                self.vel[0] = -TimeMachine.max_speed
                 print "moving left"
             elif hat == (1, 0):
                 #move right
-                self.speed[0] = TimeMachine.max_speed
+                self.vel[0] = TimeMachine.max_speed
                 print "moving right"
             elif hat == (0, 0):
-                self.speed[0] = 0
+                self.vel[0] = 0
             val = self.controller.get_axis(1)
             if val != 0:
-                self.speed[0] = -val * TimeMachine.max_speed
+                self.vel[0] = -val * TimeMachine.max_speed
                     
     def gravitation(self):
         if self.jump:
             #print "Using gravity"
-            self.speed[1] += TimeMachine.gravity
+            self.vel[1] += TimeMachine.gravity
         
             #print "position:", self.pos, "jumped position:", self.jump_pos
             # unless it lands back on the surface
             if self.pos[1] > self.jump_pos[1]:
                 #print "Landed"
                 self.jump = False
-                self.speed[1] = 0
+                self.vel[1] = 0
                 #print "position:", self.pos, "jumped position:", self.jump_pos
                 self.pos[1] = self.jump_pos[1]
             
     def move(self):
-        if self.speed != [0, 0]:
-            self.pos[0] += self.speed[0]
-            self.pos[1] += self.speed[1]
+        if self.vel != [0, 0]:
+            self.pos[0] += self.vel[0]
+            self.pos[1] += self.vel[1]
             #print "moving"
+
+    
+    def check_win(self):
+        ''' 
+        Check if the player is close to the goal.
+        Display the "winner!" dialog if game is won
+        '''
+        pass
 
     def update_ui(self, events):
         '''
