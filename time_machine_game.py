@@ -9,6 +9,20 @@ class Player:
     def __init__(self, player_num):
         self._player_num
         self._pos = pg.math.Vector2(300, 300)
+
+
+class CurrentPlayer(Player):
+
+    def __init__(self, player_num):
+        Player.__init__(self, player_num)
+        self._vy = 0
+
+
+class PastPlayer(Player):
+
+    def __init__(self, player_num):
+        Player.__init__(self, player_num)
+        
     
 
 
