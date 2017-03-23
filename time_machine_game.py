@@ -173,15 +173,15 @@ class TimeMachine(Game):
         if self.controller:
             #print self.controller.get_numhats()
             hat = self.controller.get_hat(0)
-            if hat == (-1, 0):
+            if hat == const.PS_LEFT:
                 # move left
                 self.vel[0] = -Player.max_speed
                 print "moving left"
-            elif hat == (1, 0):
+            elif hat == const.PS_RIGHT:
                 #move right
                 self.vel[0] = Player.max_speed
                 print "moving right"
-            elif hat == (0, 0):
+            elif hat == const.PS_NO_DPAD:
                 self.vel[0] = 0
             
             val = self.controller.get_axis(const.PS_JOYSTICK_LEFT_X)
