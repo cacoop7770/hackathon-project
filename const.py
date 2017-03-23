@@ -15,3 +15,6 @@ PS_L3 = 10
 PS_R3 = 11
 PS_PS = 12 # PS button
 PS_TOUCH = 13
+
+PLAYER_H = 20
+PLAYER_W = 10
