@@ -2,8 +2,8 @@ import pygame as pg
 from gui import Game
 
 class DataCenter(Game):
-    def __init__(self):
-        Game.__init__(self)
+    def __init__(self, controller):
+        Game.__init__(self, controller)
 
         # The main surface is in self.main_surf
         # so want to blit my own surface there
