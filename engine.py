@@ -48,7 +48,6 @@ game_delay = 0
 
 # start the game
 while True:
-    
     game_time = time.time()
 
     # Grab pygame events
@@ -65,10 +64,10 @@ while True:
             delayed_joystick.add_event(future_event)
         events = []
 
-    # Check future events and add them to the events
-    queued_events = delayed_joystick.queue_event(game_time)
-    events.extend(queued_events)
-    delayed_joystick.delete_queued_events()
+        # Check future events and add them to the events
+        queued_events = delayed_joystick.queue_event(game_time)
+        events.extend(queued_events)
+        delayed_joystick.delete_queued_events()
             
 
     # update the the surface of each game
