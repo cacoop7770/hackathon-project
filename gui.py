@@ -1,19 +1,25 @@
 import pygame as pg
 
+from ps4 import DeadController
+
 
 class Game:
     def __init__(self, controller):
         self._running = True
-        self.controller = controller
+        self.controller = controller # A game uses this (could be a DeadController).
+        self._physical_controller = controller # The actual PS4 controller
+        self._dead_controller = DeadController() # A controller that does not work.
 
     def is_active(self):
         return self._running
 
     def activate(self):
         self._running = True
+        self.controller = self._physical_controller
 
     def deactivate(self):
         self._running = False
+        self.controller = self._dead_controller
 
     def redraw(self):
         """Redraw the surface and return it."""
