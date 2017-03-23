@@ -15,13 +15,23 @@ class Game:
     def deactivate(self):
         self._running = False
 
+    def redraw(self):
+        """Redraw the surface and return it."""
+        raise NotImplementedError
+
     def handle_event(self, event):
-        pass
+        """Handle the pygame.event."""
+        raise NotImplementedError
 
     def update_ui(self, events):
-        # handle events
+        """Redraw the surface and return it.
+
+        events is a list of pygame.events.
+        """
         if self.is_active():
             for event in events:
                 self.handle_event(event)
+        return self.redraw()
+        
 
 
