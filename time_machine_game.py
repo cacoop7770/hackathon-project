@@ -77,9 +77,9 @@ class TimeMachine(Game):
         :return: None
         :rtype: None
         '''
-        if not self._backwards:
+        if self.state == GameState.PLAY:
             self.handle_game_event(event)
-        else:
+        elif self.state == GameState.TIME_TRAVEL:
             self.handle_backwards_event(event)
 
     def handle_backwards_event(self, event):
@@ -93,20 +93,24 @@ class TimeMachine(Game):
         :rtype: None
         '''
         if event.type == pg.JOYBUTTONDOWN:
-            if event.button == 3:
+            if event.button == const.PS_TRI:
                 # pressing triangle stops the time machine
-                self._backwards = False
+                #self._backwards = False
+                self.state = GameState.PLAY
                 self.past_time = self.time
                 self.time = self.new_time
+                
+                # add a new player when going back in time
+                self.add_player()
                 return
         
         if self.controller:
             hat = self.controller.get_hat(0)
-            if hat == const.PS_JOYSTICK_LEFT_X:
+            if hat == const.PS_LEFT:
                 # move left
                 self.new_time -= 2
                 print "moving tick left"
-            elif hat == const.PS_JOYSTICK_RIGHT_X:
+            elif hat == const.PS_RIGHT:
                 # move right
                 self.new_time += 2
                 print "moving tick right"
@@ -159,7 +163,8 @@ class TimeMachine(Game):
                 self.add_player()
             elif event.button == const.PS_TRI:
                 # pressing triangle starts the time machine
-                self._backwards = True
+                #self._backwards = True
+                self.state = GameState.TIME_TRAVEL
                 return
 
         if self.controller:
@@ -188,7 +193,7 @@ class TimeMachine(Game):
         '''
 
         # Move time forward and  store current player's position
-        if not self._backwards:
+        if self.state == GameState.PLAY:
             self.time += 1
             if self.time % 10 == 0:
                 player_pos = self.players[-1].get_position()
@@ -308,6 +313,11 @@ class TimeMachine(Game):
                     position = player.get_position_at_time(self.time)
                     player.set_position(position)
 
+    def draw_time(self):
+        font = pg.font.SysFont("monospace", 15)
+        label = font.render("Current Time: {}".format(self.time), 1, (0, 0, 0))
+        self.surf.blit(label, (10, 10))
+
     def redraw(self):
         # -- update the game objects--
         black = (0, 0, 0)
@@ -317,8 +327,11 @@ class TimeMachine(Game):
         # first fill the background
         self.surf.fill((255, 255, 255))
         pg.draw.rect(self.surf, green, [400, 300, 20, 20])# reference box
+        
+        # draw the current time in the upper left corner
+        self.draw_time() 
 
-        if self._backwards:
+        if self.state == GameState.TIME_TRAVEL:
             self.draw_machine_ui()
             # redraw the players at self.new_time
             for player_num in range(len(self.players)):
@@ -342,6 +355,7 @@ class TimeMachine(Game):
             pg.draw.rect(self.surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])
             label = font.render("Player {}".format(player_num + 1), 1, (255, 0, 0))
             self.surf.blit(label, (player_pos.x, player_pos.y - 10))
+
 
         # return the surface so it can be blit
         return self.surf
