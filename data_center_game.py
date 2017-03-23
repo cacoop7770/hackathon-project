@@ -1,4 +1,6 @@
 import pygame as pg
+
+import const
 from gui import Game
 
 class DataCenter(Game):
@@ -7,7 +9,7 @@ class DataCenter(Game):
 
         # The main surface is in self.main_surf
         # so want to blit my own surface there
-        self.surf = pg.Surface((350, 600))# Screen is 650x600
+        self.surf = pg.Surface((const.DC_W, const.SCREEN_H))# Screen is 650x600
         self.delay = 0
 
     def handle_event(self, event):

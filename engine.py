@@ -1,15 +1,20 @@
 """Allow for two games to be run at the same time."""
 
 import json
+
 import pygame as pg
 import time
-from time_machine_game import TimeMachine
+import const
 from data_center_game import DataCenter
 from delayed_joystick import DelayedJoystick, FutureEvent
+from time_machine_game import TimeMachine
 
 # initialize pygame and the display
 pg.init()
-gameDisplay = pg.display.set_mode((1000, 600))
+gameDisplay = pg.display.set_mode((
+    const.DC_W + const.MAIN_GAME_W, 
+    const.SCREEN_H
+))
 pg.display.set_caption("Hackathon project")
 pg.display.update()
 
@@ -23,10 +28,8 @@ except pg.error:
     controller = None
 
 # grab the game configuration
-f = open("levels.json", "r")
-
-data =json.load(f)
-f.close()
+with open('levels.json') as f_obj:
+    data = json.load(f_obj)
 print data
 
 # init the games
@@ -67,12 +70,6 @@ while True:
     # Check future events and add them to the events
     queued_events = delayed_joystick.queue_event(game_time)
     events.extend(queued_events)
-    '''
-    for event in delayed_joystick.events:
-        if game_time > event.time:
-            events.append(event.event)
-            delayed_joystick.queue_event(game_time)
-    '''
     delayed_joystick.delete_queued_events()
             
 
@@ -82,7 +79,8 @@ while True:
 
     # Draw each surface onto the main surface
     gameDisplay.blit(dc_surf, (0, 0))
-    gameDisplay.blit(tm_surf, (350, 0))
+    gameDisplay.blit(tm_surf, (const.DC_W, 0))
     pg.display.flip()
+
     pg.time.delay(10)# smooth out the animation by adding a delay of 1/10th of a second
 
