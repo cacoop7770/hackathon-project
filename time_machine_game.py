@@ -6,8 +6,6 @@ from surface_info import SurfaceInformation
 
 class Player:
     """Any of the players (past, present, and future)."""
-    block_width = 10
-    block_height = 10
     max_speed = 1
     jump_power = 3
     def __init__(self, player_num):
@@ -46,6 +44,7 @@ class TimeMachine(Game):
         # The main surface is in self.main_surf
         # so want to blit my own surface there
         self.surf = pg.Surface((const.MAIN_GAME_W, const.SCREEN_H))# Screen is 650x600
+        self.map_surf = pg.Surface((const.MAP_W, const.MAP_H))
         self.vel = [0, 0]
         self.pos = [300, 300]
         self.jump_pos = self.pos
@@ -159,9 +158,9 @@ class TimeMachine(Game):
         Display the "winner!" dialog if game is won
         '''
         pass
-
+    
+    '''
     def update_ui(self, events):
-        '''
         Updates the surface and returns the surface
 
         :param: events: the events captured from pygame
@@ -169,12 +168,13 @@ class TimeMachine(Game):
 
         :return: The surface for this game
         :rtype: pygame.Surface object
-        '''
         # -- handle events --
         if self.is_active():
             for event in events:
                 self.handle_event(event)
+    '''
 
+    def redraw(self):
         # -- update the game objects--
 
         # update position from speed
@@ -184,7 +184,7 @@ class TimeMachine(Game):
         self.gravitation()
 
         # use a camera to follow the player
-        player_cam = pg.Rect(self.pos[0] - 100, self.pos[1] - 100, self.pos[0] + 100, self.pos[1] + 100)
+        player_cam = pg.Rect(self.pos[0] - 200, self.pos[1] - 200, self.pos[0] + 200, self.pos[1] + 200)
 
         # --draw on the surface--
 
@@ -194,16 +194,16 @@ class TimeMachine(Game):
         # then draw the objects
         black = (0, 0, 0)
         green = (0, 255, 0)
-        #pg.draw.rect(self.surf, black, [self.pos[0], self.pos[1], Player.block_width, Player.block_height])
+        #pg.draw.rect(self.surf, black, [self.pos[0], self.pos[1], Player.const.PLAYER_W, Player.const.PLAYER_H])
         player_pos = self.players[-1].get_position()
-        pg.draw.rect(self.surf, black, [player_pos.x, player_pos.y, Player.block_width, Player.block_height])
-        pg.draw.rect(self.surf, green, [400, 300, 20, 20])
+        pg.draw.rect(self.surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])# character
+        pg.draw.rect(self.surf, green, [400, 300, 20, 20])# reference box
 
         # draw all of the past players
         font = pg.font.SysFont("monospace", 15)
         for player_num in range(len(self.players)-1):
             player_pos = self.players[player_num].get_position()
-            pg.draw.rect(self.surf, black, [player_pos.x, player_pos.y, Player.block_width, Player.block_height])
+            pg.draw.rect(self.surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])
             label = font.render("Player {}".format(player_num + 1), 1, (255, 0, 0))
             self.surf.blit(label, (player_pos.x, player_pos.y - 10))
             

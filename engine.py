@@ -44,7 +44,7 @@ delayed_joystick = DelayedJoystick()
 game_time = time.time()
 
 # keep track of current time delay
-game_delay = 2
+game_delay = 0
 
 # start the game
 while True:

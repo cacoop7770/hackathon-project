@@ -21,10 +21,13 @@ DC_W = 350
 MAIN_GAME_W = 650# Time machine game
 SCREEN_H = 600
 
-PLAYER_H = 20
-PLAYER_W = 10
+PLAYER_H = 200
+PLAYER_W = 100
 
 # Here for now
 gravity = 0.025
 max_speed = 1
 jump_power = 3
+
+MAP_W = 10000
+MAP_H = 10000
