@@ -2,7 +2,7 @@ import pygame as pg
 
 import const
 from gui import Game
-
+from surface_info import SurfaceInformation
 
 class Player:
     """Any of the players (past, present, and future)."""
@@ -11,8 +11,17 @@ class Player:
     max_speed = 1
     jump_power = 3
     def __init__(self, player_num):
-        self._player_num
+        self._player_num = player_num
         self._pos = pg.math.Vector2(300, 300)
+
+    def get_player_num(self):
+        return self._player_num
+
+    def get_position(self):
+        return self._pos
+
+    def set_position(self, position_vector):
+        self._pos = position_vector
 
 
 class CurrentPlayer(Player):
@@ -41,8 +50,26 @@ class TimeMachine(Game):
         self.pos = [300, 300]
         self.jump_pos = self.pos
         self.jump = False
+
+        # keep track of all players
+        self.players = []
+
+        # add the first player
+        self.add_player()
         
-        
+    def add_player(self):
+        # first move current player into a past player
+        if len(self.players) > 0:
+            player_num = self.players[-1].get_player_num()
+            pos = self.players[-1].get_position()
+            past_player = PastPlayer(player_num)
+            past_player.set_position(pos)
+            self.players[-1] = past_player
+
+        # now add a new player
+        new_player = CurrentPlayer(len(self.players)+1)
+        self.players.append(new_player)
+
     def handle_event(self, event):
         '''
         Handles the event given
@@ -53,7 +80,7 @@ class TimeMachine(Game):
         :return: None
         :rtype: None
         '''
-         # handle keyboard and ds4
+        # handle keyboard and ds4
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_LEFT:
                 #self.pos[0] -= 10
@@ -79,6 +106,9 @@ class TimeMachine(Game):
                     self.jump_pos = [self.pos[0], self.pos[1]]
                     self.vel[1] = -Player.jump_power
                     self.jump = True
+            elif event.button == 2:
+                # add a new player
+                self.add_player()
 
         if self.controller:
             #print self.controller.get_numhats()
@@ -119,6 +149,8 @@ class TimeMachine(Game):
             self.pos[0] += self.vel[0]
             self.pos[1] += self.vel[1]
             #print "moving"
+            
+            self.players[-1].set_position(pg.math.Vector2(self.pos[0], self.pos[1]))
 
     
     def check_win(self):
@@ -138,24 +170,43 @@ class TimeMachine(Game):
         :return: The surface for this game
         :rtype: pygame.Surface object
         '''
+        # -- handle events --
         if self.is_active():
             for event in events:
                 self.handle_event(event)
 
+        # -- update the game objects--
+
         # update position from speed
         self.move()
-        
+
         # update position from gravity
         self.gravitation()
 
-        ## draw on the surface ##
+        # use a camera to follow the player
+        player_cam = pg.Rect(self.pos[0] - 100, self.pos[1] - 100, self.pos[0] + 100, self.pos[1] + 100)
+
+        # --draw on the surface--
 
         # first fill the background
         self.surf.fill((255, 255, 255))
 
         # then draw the objects
         black = (0, 0, 0)
-        pg.draw.rect(self.surf, black, [self.pos[0], self.pos[1], Player.block_width, Player.block_height])
+        green = (0, 255, 0)
+        #pg.draw.rect(self.surf, black, [self.pos[0], self.pos[1], Player.block_width, Player.block_height])
+        player_pos = self.players[-1].get_position()
+        pg.draw.rect(self.surf, black, [player_pos.x, player_pos.y, Player.block_width, Player.block_height])
+        pg.draw.rect(self.surf, green, [400, 300, 20, 20])
+
+        # draw all of the past players
+        font = pg.font.SysFont("monospace", 15)
+        for player_num in range(len(self.players)-1):
+            player_pos = self.players[player_num].get_position()
+            pg.draw.rect(self.surf, black, [player_pos.x, player_pos.y, Player.block_width, Player.block_height])
+            label = font.render("Player {}".format(player_num + 1), 1, (255, 0, 0))
+            self.surf.blit(label, (player_pos.x, player_pos.y - 10))
+            
 
         # return the surface so it can be blit
-        return self.surf
+        return SurfaceInformation(self.surf, player_cam)

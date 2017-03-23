@@ -74,12 +74,14 @@ while True:
             
 
     # update the the surface of each game
-    tm_surf = tm.update_ui(events)
+    tm_surf_info = tm.update_ui(events)
+    tm_surf = tm_surf_info.get_surface()
+    tm_rect = tm_surf_info.get_rect()
     dc_surf = dc.update_ui(events)
 
     # Draw each surface onto the main surface
     gameDisplay.blit(dc_surf, (0, 0))
-    gameDisplay.blit(tm_surf, (const.DC_W, 0))
+    gameDisplay.blit(tm_surf, (const.DC_W, 0), tm_rect)
     pg.display.flip()
 
     pg.time.delay(10)# smooth out the animation by adding a delay of 1/10th of a second
