@@ -15,7 +15,7 @@ DEBUG = False
 # initialize pygame and the display
 pg.init()
 gameDisplay = pg.display.set_mode((
-    const.DC_W + const.MAIN_GAME_W, 
+    const.DC_W + const.MAIN_GAME_W,
     const.SCREEN_H
 ))
 pg.display.set_caption("Hackathon project")
@@ -48,8 +48,9 @@ game_delay = 2
 
 # start the game
 while True:
-    val = controller.get_axis(0)
-    
+    if controller:
+        val = controller.get_axis(0)
+
     game_time = time.time()
 
     #if val != 0:
@@ -74,7 +75,7 @@ while True:
     queued_events = delayed_joystick.queue_event(game_time)
     events.extend(queued_events)
     delayed_joystick.delete_queued_events()
-            
+
 
     # update the the surface of each game
     tm_surf_info = tm.update_ui(events)
@@ -93,4 +94,3 @@ while True:
     pg.display.flip()
 
     pg.time.delay(10)# smooth out the animation by adding a delay of 1/10th of a second
-
