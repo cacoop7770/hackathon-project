@@ -12,6 +12,7 @@ class Player:
 
 
 class CurrentPlayer(Player):
+    """Curent player"""
 
     def __init__(self, player_num):
         Player.__init__(self, player_num)
@@ -19,12 +20,10 @@ class CurrentPlayer(Player):
 
 
 class PastPlayer(Player):
-
+    """Player in the past"""
     def __init__(self, player_num):
         Player.__init__(self, player_num)
-        
     
-
 
 class TimeMachine(Game):
     block_height = 10
