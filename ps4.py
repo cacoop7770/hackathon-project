@@ -1,10 +1,9 @@
 """Module for the PS4 controller"""
 
-import pygame
 import const
 
 
-class DeadController(pygame.joystick.Joystick):
+class DeadController:
     """A PS4 controller where no button is being pressed."""
 
     def get_button(self, button_num):
@@ -14,6 +13,10 @@ class DeadController(pygame.joystick.Joystick):
     def get_axis(self, axis_num):
         """Return what happens when it is unpressed."""
         return 0
+
+    def get_hat(self, hat_num):
+        """Return an unpressed hat."""
+        return (0, 0)
 
 
 def get_stick_pos(controller, stick):
