@@ -16,6 +16,11 @@ PS_R3 = 11
 PS_PS = 12 # PS button
 PS_TOUCH = 13
 
+# Screen sizes
+DC_W = 350
+MAIN_GAME_W = 300 # Time machine game
+SCREEN_H = 600
+
 PLAYER_H = 20
 PLAYER_W = 10
 
