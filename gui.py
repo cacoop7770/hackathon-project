@@ -33,6 +33,10 @@ class Game:
         """Read controller status (e.g. is a button down) and update the world."""
         raise NotImplementedError
 
+    def __draw_active(self, surf):
+        """Draw the active outline on this surface."""
+        pg.draw.rect(surf, (255, 0, 0), pg.Rect(0, 0, surf.get_width(), surf.get_height()), 10)
+
     def update_ui(self, events):
         """Redraw the surface and return it.
 
@@ -42,5 +46,8 @@ class Game:
             for event in events:
                 self.handle_event(event)
         self.update_world()
-        return self.redraw()
+        rtn = self.redraw()
+        if self.is_active():
+            self.__draw_active(rtn)
+        return rtn
 

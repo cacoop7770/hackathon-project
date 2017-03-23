@@ -38,6 +38,7 @@ print data
 # init the games
 tm = TimeMachine(controller, levels_config=data)
 dc = DataCenter(controller)
+dc.deactivate()
 delayed_joystick = DelayedJoystick()
 
 # keep track of game time
