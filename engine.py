@@ -9,6 +9,9 @@ from data_center_game import DataCenter
 from delayed_joystick import DelayedJoystick, FutureEvent
 from time_machine_game import TimeMachine
 
+# constants
+DEBUG = False
+
 # initialize pygame and the display
 pg.init()
 gameDisplay = pg.display.set_mode((
@@ -76,11 +79,16 @@ while True:
     # update the the surface of each game
     tm_surf_info = tm.update_ui(events)
     tm_surf = tm_surf_info.get_surface()
-    tm_rect = tm_surf_info.get_rect()
-    dc_surf = dc.update_ui(events)
+
+    # Only do this if not in debug mode
+    if not DEBUG:
+        tm_rect = tm_surf_info.get_rect()
+        dc_surf = dc.update_ui(events)
+
+        # Draw each surface onto the main surface
+        gameDisplay.blit(dc_surf, (0, 0))
 
     # Draw each surface onto the main surface
-    gameDisplay.blit(dc_surf, (0, 0))
     gameDisplay.blit(tm_surf, (const.DC_W, 0), tm_rect)
     pg.display.flip()
 
