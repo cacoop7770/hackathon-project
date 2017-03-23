@@ -29,7 +29,7 @@ class TimeMachine(Game):
         Game.__init__(self, controller)
         # The main surface is in self.main_surf
         # so want to blit my own surface there
-        self.surf = pg.Surface((const.MAIN_GAME_W, const.SCREEN_H))# Screen is 650x600
+        self.disp_surf = pg.Surface((const.MAIN_GAME_W, const.SCREEN_H))# Screen is 650x600
         self.map_surf = pg.Surface((const.MAP_W, const.MAP_H))
         self.vel = [0, 0]
         self.start_pos = [300, 300]
@@ -303,7 +303,7 @@ class TimeMachine(Game):
         machine_surface.blit(label, (10, 10))
          
 
-        self.surf.blit(machine_surface, (0, 450))
+        self.disp_surf.blit(machine_surface, (0, 450))
 
     def move_past_players_through_time(self):
         for player in self.players:
@@ -316,46 +316,66 @@ class TimeMachine(Game):
     def draw_time(self):
         font = pg.font.SysFont("monospace", 15)
         label = font.render("Current Time: {}".format(self.time), 1, (0, 0, 0))
-        self.surf.blit(label, (10, 10))
+        self.disp_surf.blit(label, (10, 10))
 
+
+    def draw_character(self):
+        pass
+
+    def map_to_display(self):
+        """Draw the map onto the display surface (camera code here)."""
+        #todo: Move camera around in time travel mode
+        player_pos = self.players[-1].get_position()
+        camera_pos = (
+            player_pos.x - const.HALF_SCREEN_W,
+            player_pos.y - const.HALF_SCREEN_H
+        )
+        rect = pg.Rect(player_pos.x-300, player_pos.y -300, 500, 500)
+        self.disp_surf.blit(self.map_surf, (0,0), rect) #todo: fix
+    
     def redraw(self):
         # -- update the game objects--
         black = (0, 0, 0)
         green = (0, 255, 0)
+        white = (255, 255, 255)
         font = pg.font.SysFont("monospace", 15)
 
-        # first fill the background
-        self.surf.fill((255, 255, 255))
-        pg.draw.rect(self.surf, green, [400, 300, 20, 20])# reference box
+        # first fill the backgrounds
+        self.map_surf.fill(white)
+        self.disp_surf.fill(black)
+        pg.draw.rect(self.map_surf, green, [400, 300, 20, 20])# reference box
         
-        # draw the current time in the upper left corner
-        self.draw_time() 
+        # draw the current time in the upper left corner (draw this later)
+        #self.draw_time() 
 
+        ## TIME TRAVEL
         if self.state == GameState.TIME_TRAVEL:
-            self.draw_machine_ui()
             # redraw the players at self.new_time
             for player_num in range(len(self.players)):
                 player_pos = self.players[player_num].get_position_at_time(self.new_time)
                 if player_pos == None:
                     continue
-                pg.draw.rect(self.surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])
+                pg.draw.rect(self.map_surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])
                 label = font.render("Player {}".format(player_num + 1), 1, (255, 0, 0))
-                self.surf.blit(label, (player_pos.x, player_pos.y - 10))
-            return self.surf
+                self.map_surf.blit(label, (player_pos.x, player_pos.y - 10))
+            self.map_to_display()
+            self.draw_machine_ui()
 
-        # then draw the objects
-        player_pos = self.players[-1].get_position()
-        pg.draw.rect(self.surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])# character
+        else:
+            ## NOT TIME TRAVEL
+            # then draw the current player
+            player_pos = self.players[-1].get_position()
+            pg.draw.rect(self.map_surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])# character
 
-        # draw all of the past players
-        for player_num in range(len(self.players)-1):
-            player_pos = self.players[player_num].get_position()
-            if player_pos == None:
-                continue
-            pg.draw.rect(self.surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])
-            label = font.render("Player {}".format(player_num + 1), 1, (255, 0, 0))
-            self.surf.blit(label, (player_pos.x, player_pos.y - 10))
-
+            # draw all of the past players
+            for player_num in range(len(self.players)-1):
+                player_pos = self.players[player_num].get_position()
+                if player_pos == None:
+                    continue
+                pg.draw.rect(self.map_surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])
+                label = font.render("Player {}".format(player_num + 1), 1, (255, 0, 0))
+                self.map_surf.blit(label, (player_pos.x, player_pos.y - 10))
+            self.map_to_display()
 
         # return the surface so it can be blit
-        return self.surf
+        return self.disp_surf
