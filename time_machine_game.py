@@ -26,8 +26,6 @@ class PastPlayer(Player):
     
 
 class TimeMachine(Game):
-    block_height = 10
-    block_width = 10
     gravity = 0.025
     max_speed = 1
     jump_power = 3
