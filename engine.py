@@ -1,13 +1,19 @@
 """Allow for two games to be run at the same time."""
 
 import json
+
 import pygame as pg
+
 from time_machine_game import TimeMachine
 from data_center_game import DataCenter
+import const
 
 # initialize pygame and the display
 pg.init()
-gameDisplay = pg.display.set_mode((1000, 600))
+gameDisplay = pg.display.set_mode((
+    const.DC_W + MAIN_GAME_W, 
+    const.SCREEN_H
+))
 pg.display.set_caption("Hackathon project")
 pg.display.update()
 
