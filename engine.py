@@ -36,7 +36,7 @@ with open('levels.json') as f_obj:
 print data
 
 # init the games
-tm = TimeMachine(controller)
+tm = TimeMachine(controller, levels_config=data)
 dc = DataCenter(controller)
 delayed_joystick = DelayedJoystick()
 

@@ -25,7 +25,7 @@ class GameState:
 class TimeMachine(Game):
     gravity = 0.025
 
-    def __init__(self, controller):
+    def __init__(self, controller, levels_config=None):
         Game.__init__(self, controller)
         # The main surface is in self.main_surf
         # so want to blit my own surface there
@@ -36,6 +36,7 @@ class TimeMachine(Game):
         self.pos = [300, 300]
         self.jump_pos = self.pos
         self.jump = False
+        self.levels_config = levels_config
 
         # keep track of time/# of updates
         self.time = 0
@@ -198,7 +199,7 @@ class TimeMachine(Game):
         # Move time forward and  store current player's position
         if self.state == GameState.PLAY:
             self.time += 1
-            if self.time % 10 == 0:
+            if self.time % 2 == 0:
                 player_pos = self.players[-1].get_position()
                 self.players[-1].record_position(player_pos, self.time)
 
@@ -293,9 +294,13 @@ class TimeMachine(Game):
         label = font.render(text, 1, color)
         self.map_surf.blit(label, pos)
 
-    def draw_portal(self):
-        pg.draw.circle(self.map_surf, (0,0,0), (const.PORTAL_X, const.PORTAL_Y), 20)
-        self.draw_text("Portal", (const.PORTAL_X, const.PORTAL_Y - 20), color=(255, 0, 0))
+    def draw_portal(self, pos=None):
+        if pos == None:
+           pg.draw.circle(self.map_surf, (0,0,0), (const.PORTAL_X, const.PORTAL_Y), 40)
+           self.draw_text("Portal", (const.PORTAL_X, const.PORTAL_Y - 20), color=(255, 0, 0))
+        else:
+           pg.draw.circle(self.map_surf, (0,0,0), pos, 40)
+           self.draw_text("Portal", (pos[0], pos[1] - 20), color=(255, 0, 0))
 
     def draw_machine_ui(self):
         '''
@@ -340,6 +345,36 @@ class TimeMachine(Game):
         label = font.render("Current Time: {}".format(self.time), 1, (0, 0, 0))
         self.disp_surf.blit(label, (10, 10))
 
+    def get_level_start(level_num):
+        if not self.levels_config:
+            return
+        level_text = "Level {}".format(level_num)
+        if level_text not in self.levels_config:
+            print "Level {} not in the configs".format(level_num)
+        this_level = self.levels_config[level_text]
+        return this_level["start"]
+
+    def draw_level(self, level_num):
+        if not self.levels_config:
+            return
+        level_text = "Level {}".format(level_num)
+        if level_text not in self.levels_config:
+            print "Level {} not in the configs".format(level_num)
+        this_level = self.levels_config[level_text]
+        
+        # draw lines
+        lines = [this_level[key] for key in this_level if key.startswith("line")]
+        for line in lines:
+            start_pos = (line[0], line[1])
+            end_pos = (line[2], line[3])
+            pg.draw.line(self.map_surf, (0, 0, 0), start_pos, end_pos, 5)
+        
+        # Draw the beginning portal
+        self.draw_portal(pos=this_level["start"])
+
+        # Draw the end portal
+        self.draw_portal(pos=this_level["end"])
+
 
     def draw_character(self):
         pass
@@ -360,6 +395,8 @@ class TimeMachine(Game):
         black = (0, 0, 0)
         green = (0, 255, 0)
         white = (255, 255, 255)
+        yellow = (255, 255, 0)
+        blue = (0, 0, 255)
         font = pg.font.SysFont("monospace", 15)
 
         # first fill the backgrounds
@@ -368,7 +405,10 @@ class TimeMachine(Game):
         pg.draw.rect(self.map_surf, green, [400, 300, 20, 20])# reference box
         
         # Draw the beginning portal
-        self.draw_portal()
+        #self.draw_portal()
+
+        # draw the level objects
+        self.draw_level(1)
 
         # draw the current time in the upper left corner (draw this later)
         #self.draw_time() 
@@ -390,6 +430,7 @@ class TimeMachine(Game):
             ## NOT TIME TRAVEL
             # then draw the current player
             player_pos = self.players[-1].get_position()
+            pg.draw.rect(self.map_surf, blue, [player_pos.x-5, player_pos.y-5, const.PLAYER_W+10, const.PLAYER_H+10])# character
             pg.draw.rect(self.map_surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])# character
 
             # draw all of the past players
