@@ -73,7 +73,7 @@ class DataCenter(Game):
 
         ### EDIT CODE3 ABOVE ###
 
-    def update_world():
+    def update_world(self):
         self.lead_x += self.lead_x_change
         self.lead_y += self.lead_y_change
         clock.tick(30)
