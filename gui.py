@@ -47,6 +47,7 @@ class Game:
                 self.handle_event(event)
         self.update_world()
         rtn = self.redraw()
-        self.__draw_active(rtn)
+        if self.is_active():
+            self.__draw_active(rtn)
         return rtn
 
