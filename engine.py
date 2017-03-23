@@ -27,10 +27,8 @@ except pg.error:
     controller = None
 
 # grab the game configuration
-f = open("levels.json", "r")
-
-data =json.load(f)
-f.close()
+with open('levels.json') as f_obj:
+    data = json.load(f_obj)
 print data
 
 # init the games
@@ -39,12 +37,6 @@ dc = DataCenter(controller)
 
 # start the game
 while True:
-    val = controller.get_axis(1)
-    
-    if val != 0:
-        print val
-        print "\t", controller.get_hat(0)
-
     # Grab pygame events
     events = pg.event.get()
 
