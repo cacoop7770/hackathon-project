@@ -33,14 +33,20 @@ PS_JOYSTICK_RIGHT_Y = 3
 DC_W = 350
 MAIN_GAME_W = 650# Time machine game
 SCREEN_H = 600
+HALF_SCREEN_H = SCREEN_H / 2
+HALF_SCREEN_W = (DC_W + MAIN_GAME_W) / 2
 
-PLAYER_H = 50
-PLAYER_W = 25
+PLAYER_H = 100
+PLAYER_W = 50
 
 # Here for now
 gravity = 0.025
 max_speed = 1
 jump_power = 3
 
-MAP_W = 10000
-MAP_H = 10000
+MAP_W = 3000
+MAP_H = 3000
+
+# position of the portal
+PORTAL_X = 300
+PORTAL_Y = 300

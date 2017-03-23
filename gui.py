@@ -35,6 +35,6 @@ class Game:
         if self.is_active():
             for event in events:
                 self.handle_event(event)
-            self.update_world()
+        self.update_world()
         return self.redraw()
 

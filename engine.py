@@ -70,6 +70,16 @@ while True:
         delayed_joystick.delete_queued_events()
             
 
+    # change active game
+    for event in events:
+        if event.type == pg.JOYBUTTONDOWN:
+            if event.button == const.PS_R1:
+                tm.activate()
+                dc.deactivate()
+            elif event.button == const.PS_L1:
+                tm.deactivate()
+                dc.activate()
+
     # update the the surface of each game
     tm_surf = tm.update_ui(events)
 

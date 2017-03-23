@@ -6,9 +6,9 @@ class Player:
     max_speed = 1
     jump_power = 3
 
-    def __init__(self, player_num, time):
+    def __init__(self, player_num, time, start_pos):
         self._player_num = player_num
-        self._pos = pg.math.Vector2(300, 300)
+        self._pos = start_pos#pg.math.Vector2(300, 300)# Arbitrary start position
         self._positions = []# Collection of SpaceTime objects
         self.start_time = time# game time when the player started
 
@@ -70,14 +70,14 @@ class Player:
 class CurrentPlayer(Player):
     """Curent player"""
 
-    def __init__(self, player_num, time):
-        Player.__init__(self, player_num, time)
+    def __init__(self, player_num, time, start_pos=pg.math.Vector2(300, 300)):
+        Player.__init__(self, player_num, time, start_pos)
         self._vy = 0
 
 
 
 class PastPlayer(Player):
     """Player in the past"""
-    def __init__(self, player_num, time):
-        Player.__init__(self, player_num, time)
+    def __init__(self, player_num, time, start_pos=pg.math.Vector2(300, 300)):
+        Player.__init__(self, player_num, time, start_pos)
 
