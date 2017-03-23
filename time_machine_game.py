@@ -57,14 +57,17 @@ class TimeMachine(Game):
             player_num = self.players[-1].get_player_num()
             pos = self.players[-1].get_position()
             positions = self.players[-1].get_positions()
-            past_player = PastPlayer(player_num, self.time)
+            past_player = PastPlayer(player_num, self.time, pos)
             past_player.set_position(pos)
             past_player.set_positions(positions)
 
             self.players[-1] = past_player
 
         # now add a new player
-        new_player = CurrentPlayer(len(self.players)+1, self.time)
+        new_player_pos = pg.math.Vector2(const.PORTAL_X, const.PORTAL_Y)
+        new_player = CurrentPlayer(len(self.players)+1, self.time, start_pos=new_player_pos)
+        #new_player.set_position(pg.math.Vector2(const.PORTAL_X, const.PORTAL_Y))
+        self.pos = new_player.get_position()
         self.players.append(new_player)
 
     def handle_event(self, event):
@@ -275,6 +278,25 @@ class TimeMachine(Game):
                 self.handle_event(event)
     '''
 
+    def draw_text(self, text, pos, color=(0, 0, 0)):
+        """
+        Draws text onto the map surface
+        
+        :param: text: The text to be drawn
+        :type: text: str
+        :param: pos: Position of the text on the map
+        :type: pos: position array (ie (x, y))
+        :param: color: the color of the text
+        :type: color: color arrray (r,g,b)
+        """
+        font = pg.font.SysFont("monospace", 15)
+        label = font.render(text, 1, color)
+        self.map_surf.blit(label, pos)
+
+    def draw_portal(self):
+        pg.draw.circle(self.map_surf, (0,0,0), (const.PORTAL_X, const.PORTAL_Y), 20)
+        self.draw_text("Portal", (const.PORTAL_X, const.PORTAL_Y - 20), color=(255, 0, 0))
+
     def draw_machine_ui(self):
         '''
         Draw the strip for the time machine thingy
@@ -330,7 +352,7 @@ class TimeMachine(Game):
             player_pos.x - const.HALF_SCREEN_W,
             player_pos.y - const.HALF_SCREEN_H
         )
-        rect = pg.Rect(player_pos.x-300, player_pos.y -300, 500, 500)
+        rect = pg.Rect(player_pos.x-const.HALF_SCREEN_W, player_pos.y -const.HALF_SCREEN_H, const.MAIN_GAME_W, const.SCREEN_H)
         self.disp_surf.blit(self.map_surf, (0,0), rect) #todo: fix
     
     def redraw(self):
@@ -345,6 +367,9 @@ class TimeMachine(Game):
         self.disp_surf.fill(black)
         pg.draw.rect(self.map_surf, green, [400, 300, 20, 20])# reference box
         
+        # Draw the beginning portal
+        self.draw_portal()
+
         # draw the current time in the upper left corner (draw this later)
         #self.draw_time() 
 
