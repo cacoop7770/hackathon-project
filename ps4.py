@@ -1,6 +1,7 @@
 """Module for the PS4 controller"""
 
 import pygame
+import const
 
 
 class DeadController(pygame.joystick.Joystick):
@@ -21,4 +22,15 @@ def get_stick_pos(controller, stick):
     controller is a pygame.joystick.Joystick.
     stick is either const.PS_L3 or const.PS_R3.
     """
-    pass
+    if stick == const.PS_L3:
+        x_axis = PS_JOYSTICK_LEFT_X
+        y_axis = PS_JOYSTICK_LEFT_Y
+    elif stick == const.PS_R3:
+        x_axis = PS_JOYSTICK_RIGHT_X
+        y_axis = PS_JOYSTICK_RIGHT_Y
+    else:
+        raise Exception('stick needs to be left stick or right stick.')
+
+    return (controller.get_axis(x_axis), controller.get_axis(y_axis))
+
+
