@@ -1,11 +1,15 @@
 import pygame as pg
 
+import const
 from gui import Game
 
 
 class Player:
     """Any of the players (past, present, and future)."""
-
+    block_width = 10
+    block_height = 10
+    max_speed = 1
+    jump_power = 3
     def __init__(self, player_num):
         self._player_num
         self._pos = pg.math.Vector2(300, 300)
@@ -26,12 +30,13 @@ class PastPlayer(Player):
     
 
 class TimeMachine(Game):
+    gravity = 0.025
 
     def __init__(self, controller):
         Game.__init__(self, controller)
         # The main surface is in self.main_surf
         # so want to blit my own surface there
-        self.surf = pg.Surface((650, 600))# Screen is 650x600
+        self.surf = pg.Surface((const.MAIN_GAME_W, const.SCREEN_H))# Screen is 650x600
         self.vel = [0, 0]
         self.pos = [300, 300]
         self.jump_pos = self.pos
@@ -52,15 +57,15 @@ class TimeMachine(Game):
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_LEFT:
                 #self.pos[0] -= 10
-                self.vel[0] = -TimeMachine.max_speed
+                self.vel[0] = -Player.max_speed
             if event.key == pg.K_RIGHT:
-                self.vel[0] = TimeMachine.max_speed
+                self.vel[0] = Player.max_speed
 
             if event.key == pg.K_SPACE:
                 #print "Jumped!"
                 if not self.jump:
                     self.jump_pos = [self.pos[0], self.pos[1]]
-                    self.vel[1] = -TimeMachine.jump_power
+                    self.vel[1] = -Player.jump_power
                     self.jump = True
                 
         if event.type == pg.KEYUP:
@@ -72,7 +77,7 @@ class TimeMachine(Game):
                 #print "Jumped!"
                 if not self.jump:
                     self.jump_pos = [self.pos[0], self.pos[1]]
-                    self.vel[1] = -TimeMachine.jump_power
+                    self.vel[1] = -Player.jump_power
                     self.jump = True
 
         if self.controller:
@@ -80,17 +85,20 @@ class TimeMachine(Game):
             hat = self.controller.get_hat(0)
             if hat == (-1, 0):
                 # move left
-                self.vel[0] = -TimeMachine.max_speed
+                self.vel[0] = -Player.max_speed
                 print "moving left"
             elif hat == (1, 0):
                 #move right
-                self.vel[0] = TimeMachine.max_speed
+                self.vel[0] = Player.max_speed
                 print "moving right"
             elif hat == (0, 0):
                 self.vel[0] = 0
-            val = self.controller.get_axis(1)
+            
+            val = self.controller.get_axis(0)
             if val != 0:
-                self.vel[0] = -val * TimeMachine.max_speed
+                #self.vel[0] = -val * Player.max_speed
+                #print val
+                pass
                     
     def gravitation(self):
         if self.jump:
@@ -147,7 +155,7 @@ class TimeMachine(Game):
 
         # then draw the objects
         black = (0, 0, 0)
-        pg.draw.rect(self.surf, black, [self.pos[0], self.pos[1], TimeMachine.block_width, TimeMachine.block_height])
+        pg.draw.rect(self.surf, black, [self.pos[0], self.pos[1], Player.block_width, Player.block_height])
 
         # return the surface so it can be blit
         return self.surf

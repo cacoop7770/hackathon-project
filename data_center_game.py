@@ -1,4 +1,6 @@
 import pygame as pg
+
+import const
 from gui import Game
 
 white = (255,255,255)
@@ -10,7 +12,8 @@ class DataCenter(Game):
 
         # The main surface is in self.main_surf
         # so want to blit my own surface there
-        self.surf = pg.Surface((DC_W, SCREEN_H))
+        self.surf = pg.Surface((const.DC_W, const.SCREEN_H))# Screen is 650x600
+        self.delay = 0
 
         ### EDIT CODE1 BELOW ###
 
@@ -38,8 +41,20 @@ class DataCenter(Game):
         ### EDIT CODE3 ABOVE ###
 
 
+    def get_delay(self):
+        return self.delay
+
+    def update_ui(self, events):
+        if self.is_active():
+            for event in events:
+                self.handle_event(event)
+
+        # return the surface so it can be blit
+        return self.redraw()
+
     def redraw(self):
         """Redraw the datacenter surface and return it."""
+
         ### EDIT CODE2 BELOW ###
         self.surf.fill(white)
         pg.draw.rect(self.surf, black, [lead_x, lead_y, 10, 10])
