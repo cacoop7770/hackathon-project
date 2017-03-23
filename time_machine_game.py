@@ -1,3 +1,13 @@
+'''
+######################################
+# TO DO:
+# - Implement the game states
+# - Maybe add more states
+# - Seperate redraw code according to current game state
+#    -  Some wil share functions such as draw game
+# - 
+######################################
+'''
 import pygame as pg
 
 import const
@@ -5,6 +15,12 @@ from gui import Game
 from surface_info import SurfaceInformation
 from space_time import SpaceTime
 from players import Player, CurrentPlayer, PastPlayer
+
+class GameState:
+    PLAY = 0
+    TIME_TRAVEL = 1
+    GAME_WIN = 2
+    GAME_LOSE = 3
 
 class TimeMachine(Game):
     gravity = 0.025
@@ -33,6 +49,7 @@ class TimeMachine(Game):
         self.add_player()
 
         self._backwards = False
+        self.state = GameState.PLAY
 
     def add_player(self):
         # first move current player into a past player
