@@ -21,8 +21,8 @@ DC_W = 350
 MAIN_GAME_W = 650# Time machine game
 SCREEN_H = 600
 
-PLAYER_H = 200
-PLAYER_W = 100
+PLAYER_H = 50
+PLAYER_W = 25
 
 # Here for now
 gravity = 0.025
