@@ -34,8 +34,9 @@ class DataCenter(Game):
         """handle keyboard or ds4"""
         ### EDIT CODE3 BELOW ###
         if event.type == pg.QUIT:
-            pygame.quit()
+            pg.quit()
 
+        # using the keyboard
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_LEFT:
                 self.lead_x_change = -2
@@ -55,10 +56,25 @@ class DataCenter(Game):
             elif event.key == pg.K_DOWN:
                 self.lead_y_change = 0
 
-
+        # using the controller
+        if self.controller:
+            direction_down = self.controller.get_hat(0)
+            if direction_down == const.PS_LEFT:
+                self.lead_x_change = -2
+            elif direction_down == const.PS_RIGHT:
+                self.lead_x_change = 2
+            elif direction_down == const.PS_UP:
+                self.lead_y_change = -2
+            elif direction_down == const.PS_DOWN:
+                self.lead_y_change = 2
+            elif direction_down == const.PS_NO_DPAD:
+                self.lead_y_change = 0
+                self.lead_x_change = 0
 
         ### EDIT CODE3 ABOVE ###
 
+    def update_world():
+        pass
 
     def get_delay(self):
         return self.delay
