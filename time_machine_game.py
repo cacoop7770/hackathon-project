@@ -26,9 +26,6 @@ class PastPlayer(Player):
     
 
 class TimeMachine(Game):
-    gravity = 0.025
-    max_speed = 1
-    jump_power = 3
 
     def __init__(self, controller):
         Game.__init__(self, controller)

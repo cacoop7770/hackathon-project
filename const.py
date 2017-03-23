@@ -18,3 +18,8 @@ PS_TOUCH = 13
 
 PLAYER_H = 20
 PLAYER_W = 10
+
+# Here for now
+gravity = 0.025
+max_speed = 1
+jump_power = 3
