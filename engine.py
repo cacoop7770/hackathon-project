@@ -82,6 +82,11 @@ while True:
     # update the the surface of each game
     tm_surf = tm.update_ui(events)
 
+    # tm_surf is None if game is over
+    if not tm_surf:
+        print "Game over!"
+        break
+
     # Only do this if not in debug mode
     if not DEBUG:
         #tm_rect = tm_surf_info.get_rect()

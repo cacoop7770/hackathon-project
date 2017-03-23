@@ -9,6 +9,7 @@ class Game:
         self.controller = controller # A game uses this (could be a DeadController).
         self._physical_controller = controller # The actual PS4 controller
         self._dead_controller = DeadController() # A controller that does not work.
+        self.game_over = False# For game over checks
 
     def is_active(self):
         return self._running
@@ -42,5 +43,8 @@ class Game:
             for event in events:
                 self.handle_event(event)
         self.update_world()
-        return self.redraw()
+        if not self.game_over:
+            return self.redraw()
+        else:
+            return None
 

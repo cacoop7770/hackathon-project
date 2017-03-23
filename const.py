@@ -40,9 +40,12 @@ PLAYER_H = 100
 PLAYER_W = 50
 
 # Here for now
-gravity = 0.025
-max_speed = 1
-jump_power = 3
+#gravity = 0.025
+gravity = 0.1
+#max_speed = 1
+max_speed = 5
+#jump_power = 3
+jump_power = 7
 
 MAP_W = 3000
 MAP_H = 3000

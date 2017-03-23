@@ -3,9 +3,6 @@ from space_time import SpaceTime
 
 class Player:
     """Any of the players (past, present, and future)."""
-    max_speed = 1
-    jump_power = 3
-
     def __init__(self, player_num, time, start_pos):
         self._player_num = player_num
         self._pos = start_pos#pg.math.Vector2(300, 300)# Arbitrary start position

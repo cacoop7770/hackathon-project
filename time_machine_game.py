@@ -15,6 +15,7 @@ from gui import Game
 from surface_info import SurfaceInformation
 from space_time import SpaceTime
 from players import Player, CurrentPlayer, PastPlayer
+from time_machine_objects import Platform
 
 class GameState:
     PLAY = 0
@@ -23,8 +24,6 @@ class GameState:
     GAME_LOSE = 3
 
 class TimeMachine(Game):
-    gravity = 0.025
-
     def __init__(self, controller, levels_config=None):
         Game.__init__(self, controller)
         # The main surface is in self.main_surf
@@ -34,7 +33,6 @@ class TimeMachine(Game):
         self.vel = [0, 0]
         self.start_pos = [300, 300]
         self.pos = [300, 300]
-        self.jump_pos = self.pos
         self.jump = False
         self.levels_config = levels_config
 
@@ -51,6 +49,28 @@ class TimeMachine(Game):
 
         self._backwards = False
         self.state = GameState.PLAY
+
+        # keep track of platforms
+        self.platforms = self.get_platforms(1)
+        self.current_landing_y = 1000
+
+    def get_platforms(self, level_num):
+        if not self.levels_config:
+            return []
+        level_text = "Level {}".format(level_num)
+        if level_text not in self.levels_config:
+            print "Level {} not in the configs".format(level_num)
+        this_level = self.levels_config[level_text]
+        
+        # draw lines
+        platforms = []
+        lines = [this_level[key] for key in this_level if key.startswith("line")]
+        for line in lines:
+            start_pos = (line[0], line[1])
+            end_pos = (line[2], line[3])
+            platform = Platform(start_pos, end_pos)
+            platforms.append(platform)
+        return platforms
 
     def add_player(self):
         # first move current player into a past player
@@ -140,15 +160,14 @@ class TimeMachine(Game):
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_LEFT:
                 #self.pos[0] -= 10
-                self.vel[0] = -Player.max_speed
+                self.vel[0] = -const.max_speed
             if event.key == pg.K_RIGHT:
-                self.vel[0] = Player.max_speed
+                self.vel[0] = const.max_speed
 
             if event.key == pg.K_SPACE:
                 #print "Jumped!"
                 if not self.jump:
-                    #self.jump_pos = [self.pos[0], self.pos[1]]
-                    self.vel[1] = -Player.jump_power
+                    self.vel[1] = -const.jump_power
                     self.jump = True
                 
         if event.type == pg.KEYUP:
@@ -159,15 +178,13 @@ class TimeMachine(Game):
             if event.button == const.PS_X:
                 #print "Jumped!"
                 if not self.jump:
-                    #self.jump_pos = [self.pos[0], self.pos[1]]
-                    self.vel[1] = -Player.jump_power
+                    self.vel[1] = -const.jump_power
                     self.jump = True
             elif event.button == const.PS_O:
                 # add a new player
                 self.add_player()
             elif event.button == const.PS_TRI:
                 # pressing triangle starts the time machine
-                #self._backwards = True
                 self.state = GameState.TIME_TRAVEL
                 return
 
@@ -213,18 +230,26 @@ class TimeMachine(Game):
         if self.time < self.past_time:
             self.move_past_players_through_time()
 
-
-
     def gravitation(self):
         '''
         Handles gravity and moves the character accordingly
         '''
         
-        #print "position:", self.pos, "jumped position:", self.jump_pos
         # unless it lands back on the surface
         # change this so it can jump on top of another player
         
-        landing_y = self.start_pos[1]
+         # check platforms for landing on 
+        landings_to_check = []
+        for platform in self.platforms:
+            if platform.is_above_platform(self.pos):
+                landings_to_check.append(platform.get_height(self.pos))
+
+        # if that platform isn't under you anymore
+        if self.current_landing_y not in landings_to_check:
+            self.current_landing_y = 1000
+
+         #landing_y = 1000#self.start_pos[1]
+        # then check the players to land on 
         for i in range(len(self.players)-1):
             player_pos = self.players[i].get_position()
             if player_pos == None:
@@ -232,30 +257,40 @@ class TimeMachine(Game):
             player_x = player_pos.x
             player_y = player_pos.y
             if self.pos[0] > player_x - const.PLAYER_W and self.pos[0] < player_x + const.PLAYER_W:
-                landing_y = player_y - const.PLAYER_H
-                print landing_y, "Changed to player:", i
-                
+                if self.pos[1] < player_y:
+                    self.current_landing_y = player_y #- const.PLAYER_H
+                    print self.current_landing_y, "Changed to player:", i
+              
+        if landings_to_check:
+            print "to check: {}, current: {}".format(landings_to_check, self.current_landing_y)
 
-        if self.jump or self.pos[1] < landing_y:
+        for landing in landings_to_check:
+            if landing < self.current_landing_y:
+                self.current_landing_y = landing
+       
+        # perform the gravity
+        if self.jump or self.pos[1] < self.current_landing_y:
             #print "Using gravity"
-            self.vel[1] += TimeMachine.gravity
-            print landing_y
+            self.vel[1] += const.gravity
 
-        if self.pos[1] > landing_y:
-            #print "Landed"
-            self.jump = False
-            self.vel[1] = 0
-            #print "position:", self.pos, "jumped position:", self.jump_pos
-            self.pos[1] = landing_y
+        # stopping conditions
+        if self.pos[1] > self.current_landing_y - const.PLAYER_H:
+            # make sure on way down
+            if self.vel[1] > 0:
+                self.jump = False
+                self.vel[1] = 0
+                #self.pos[1] = self.current_landing_y - const.PLAYER_H
+
+        # Check if player died
+        if self.pos[1] > const.SCREEN_H:
+            self.game_over = True
+        print self.pos[1]
             
     def move(self):
         if self.vel != [0, 0]:
             self.pos[0] += self.vel[0]
             self.pos[1] += self.vel[1]
-            #print "moving"
-            
             self.players[-1].set_position(pg.math.Vector2(self.pos[0], self.pos[1]))
-
     
     def check_win(self):
         ''' 
@@ -263,21 +298,6 @@ class TimeMachine(Game):
         Display the "winner!" dialog if game is won
         '''
         pass
-    
-    '''
-    def update_ui(self, events):
-        Updates the surface and returns the surface
-
-        :param: events: the events captured from pygame
-        :type: events: list
-
-        :return: The surface for this game
-        :rtype: pygame.Surface object
-        # -- handle events --
-        if self.is_active():
-            for event in events:
-                self.handle_event(event)
-    '''
 
     def draw_text(self, text, pos, color=(0, 0, 0)):
         """
@@ -363,10 +383,11 @@ class TimeMachine(Game):
         this_level = self.levels_config[level_text]
         
         # draw lines
-        lines = [this_level[key] for key in this_level if key.startswith("line")]
-        for line in lines:
-            start_pos = (line[0], line[1])
-            end_pos = (line[2], line[3])
+        for platform in self.platforms:
+            #lines = [this_level[key] for key in this_level if key.startswith("line")]
+            #for line in lines:
+            start_pos = platform.start()
+            end_pos = platform.end()
             pg.draw.line(self.map_surf, (0, 0, 0), start_pos, end_pos, 5)
         
         # Draw the beginning portal
