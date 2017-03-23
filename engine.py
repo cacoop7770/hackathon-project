@@ -15,7 +15,7 @@ DEBUG = False
 # initialize pygame and the display
 pg.init()
 gameDisplay = pg.display.set_mode((
-    const.DC_W + const.MAIN_GAME_W, 
+    const.DC_W + const.MAIN_GAME_W,
     const.SCREEN_H
 ))
 pg.display.set_caption("Hackathon project")
@@ -68,7 +68,6 @@ while True:
         queued_events = delayed_joystick.queue_event(game_time)
         events.extend(queued_events)
         delayed_joystick.delete_queued_events()
-            
 
     # change active game
     for event in events:
@@ -96,4 +95,3 @@ while True:
     pg.display.flip()
 
     pg.time.delay(10)# smooth out the animation by adding a delay of 1/10th of a second
-
