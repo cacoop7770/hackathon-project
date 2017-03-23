@@ -48,15 +48,6 @@ game_delay = 0
 
 # start the game
 while True:
-    val = controller.get_axis(0)
-    
-    game_time = time.time()
-
-    #if val != 0:
-    #    print val
-    #    print "\t", controller.get_hat(0)
-
-    # Grab pygame events
     events = pg.event.get()
 
     # if there is a delay, add all events to the delayed controller
