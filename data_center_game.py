@@ -26,10 +26,14 @@ class DataCenter(Game):
 
         # draw on the surface here
         # make sure to draw inside of self.surf
-        
-
-        # Choose background color of surface (r,g,b)
-        self.surf.fill((0, 255, 0))
+        self.redraw()
 
         # return the surface so it can be blit
+        return self.redraw()
+
+    def redraw(self):
+        """Redraw the datacenter surface and return it."""
+        # Choose background color of surface (r,g,b)
+        self.surf.fill((255, 0, 0))
+
         return self.surf
