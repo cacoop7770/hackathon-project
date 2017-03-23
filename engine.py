@@ -46,7 +46,6 @@ while True:
 
     # Draw each surface onto the main surface
     gameDisplay.blit(dc_surf, (0, 0))
-    gameDisplay.blit(tm_surf, (350, 0))
+    gameDisplay.blit(tm_surf, (const.DC_W, 0))
     pg.display.flip()
-    pg.time.delay(10)# smooth out the animation by adding a delay of 1/10th of a second
     
