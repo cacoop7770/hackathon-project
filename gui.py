@@ -23,6 +23,10 @@ class Game:
         """Handle the pygame.event."""
         raise NotImplementedError
 
+    def update_world(self):
+        """Read controller status (e.g. is a button down) and update the world."""
+        raise NotImplementedError
+
     def update_ui(self, events):
         """Redraw the surface and return it.
 
@@ -31,7 +35,6 @@ class Game:
         if self.is_active():
             for event in events:
                 self.handle_event(event)
+            self.update_world()
         return self.redraw()
-        
-
 

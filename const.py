@@ -16,6 +16,19 @@ PS_R3 = 11
 PS_PS = 12# PS button
 PS_TOUCH = 13
 
+# D-pad
+PS_LEFT = (-1, 0)
+PS_RIGHT = (1, 0)
+PS_UP = (0, 1)
+PS_DOWN = (0, -1)
+PS_NO_DPAD = (0, 0)
+
+# Joysticks
+PS_JOYSTICK_LEFT_X = 0
+PS_JOYSTICK_LEFT_Y = 1
+PS_JOYSTICK_RIGHT_X = 2
+PS_JOYSTICK_RIGHT_Y = 3
+
 # Screen sizes
 DC_W = 350
 MAIN_GAME_W = 650# Time machine game

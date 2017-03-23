@@ -4,88 +4,7 @@ import const
 from gui import Game
 from surface_info import SurfaceInformation
 from space_time import SpaceTime
-
-
-class Player:
-    """Any of the players (past, present, and future)."""
-    max_speed = 1
-    jump_power = 3
-
-    def __init__(self, player_num, time):
-        self._player_num = player_num
-        self._pos = pg.math.Vector2(300, 300)
-        self._positions = []# Collection of SpaceTime objects
-        self.start_time = time# game time when the player started
-
-    def get_player_num(self):
-        return self._player_num
-
-    def get_position(self):
-        return self._pos
-
-    def exists(self, time):
-        '''
-        Checks if player exists at given time
-        '''
-        return time > self.start_time
-
-    def set_position(self, position_vector):
-        self._pos = position_vector
-
-    def record_position(self, position, time):
-        '''
-        Record where and when the player was
-
-        :param: position: where the player was
-        :type: position: pygame.math.Vector2
-        :param: time: the time when the player was there
-        :type: time: float
-        '''
-        new_space_time = SpaceTime(position, time)
-        self._positions.append(new_space_time)
-
-    def get_position_at_time(self, time):
-        '''
-        Get where the player was at the given time
-
-        :param: position: where the player was
-        :type: position: pygame.math.Vector2
-        :param: time: the time when the player was there
-        :type: time: float
-
-        :return: player position
-        :rtype: pygame.math.Vector2
-        '''
-        if not self.exists(time):
-            return None
-
-        for i in range(len(self._positions)):
-            t = self._positions[i].get_time()
-            if t > time:
-                return self._positions[i-1].get_position()
-        return self.get_position()
-
-    def get_positions(self):
-        return self._positions
-
-    def set_positions(self, space_times):
-        self._positions = space_times
-
-
-class CurrentPlayer(Player):
-    """Curent player"""
-
-    def __init__(self, player_num, time):
-        Player.__init__(self, player_num, time)
-        self._vy = 0
-
-
-
-class PastPlayer(Player):
-    """Player in the past"""
-    def __init__(self, player_num, time):
-        Player.__init__(self, player_num, time)
-    
+from players import Player, CurrentPlayer, PastPlayer
 
 class TimeMachine(Game):
     gravity = 0.025
@@ -166,11 +85,11 @@ class TimeMachine(Game):
         
         if self.controller:
             hat = self.controller.get_hat(0)
-            if hat == (-1, 0):
+            if hat == const.PS_JOYSTICK_LEFT_X:
                 # move left
                 self.new_time -= 2
                 print "moving tick left"
-            elif hat == (1, 0):
+            elif hat == const.PS_JOYSTICK_RIGHT_X:
                 # move right
                 self.new_time += 2
                 print "moving tick right"
@@ -212,16 +131,16 @@ class TimeMachine(Game):
 
         if event.type == pg.JOYBUTTONDOWN:
             print "Event type:", event.button
-            if event.button == 1:
+            if event.button == const.PS_X:
                 #print "Jumped!"
                 if not self.jump:
                     #self.jump_pos = [self.pos[0], self.pos[1]]
                     self.vel[1] = -Player.jump_power
                     self.jump = True
-            elif event.button == 2:
+            elif event.button == const.PS_O:
                 # add a new player
                 self.add_player()
-            elif event.button == 3:
+            elif event.button == const.PS_TRI:
                 # pressing triangle starts the time machine
                 self._backwards = True
                 return
@@ -240,12 +159,36 @@ class TimeMachine(Game):
             elif hat == (0, 0):
                 self.vel[0] = 0
             
-            val = self.controller.get_axis(0)
+            val = self.controller.get_axis(const.PS_JOYSTICK_LEFT_X)
             if val != 0:
                 #self.vel[0] = -val * Player.max_speed
                 #print val
                 pass
-                    
+
+    def update_world(self):
+        '''
+        Update the state of the world before redrawing
+        '''
+
+        # Move time forward and  store current player's position
+        if not self._backwards:
+            self.time += 1
+            if self.time % 10 == 0:
+                player_pos = self.players[-1].get_position()
+                self.players[-1].record_position(player_pos, self.time)
+
+        # update position from speed
+        self.move()
+
+        # update position from gravity
+        self.gravitation()
+
+        # move past players
+        if self.time < self.past_time:
+            self.move_past_players_through_time()
+
+
+
     def gravitation(self):
         '''
         Handles gravity and moves the character accordingly
@@ -354,6 +297,7 @@ class TimeMachine(Game):
         green = (0, 255, 0)
         font = pg.font.SysFont("monospace", 15)
 
+        # first fill the background
         self.surf.fill((255, 255, 255))
         pg.draw.rect(self.surf, green, [400, 300, 20, 20])# reference box
 
@@ -369,38 +313,9 @@ class TimeMachine(Game):
                 self.surf.blit(label, (player_pos.x, player_pos.y - 10))
             return self.surf
 
-        if not self._backwards:
-            self.time += 1
-            if self.time % 10 == 0:
-                player_pos = self.players[-1].get_position()
-                self.players[-1].record_position(player_pos, self.time)
-
-        # update position from speed
-        self.move()
-
-        # update position from gravity
-        self.gravitation()
-
-        # use a camera to follow the player
-        camx1 = self.pos[0] - 200
-        camx2 = self.pos[0] + 400
-        camy1 = self.pos[1] - 200
-        camy2 = self.pos[1] + 400
-        player_cam = pg.Rect(camx1, camy1, camx2, camy2)
-
-        # --draw on the surface--
-
-        # first fill the background
-        #self.surf.fill((255, 255, 255))
-
         # then draw the objects
-        #pg.draw.rect(self.surf, black, [self.pos[0], self.pos[1], Player.const.PLAYER_W, Player.const.PLAYER_H])
         player_pos = self.players[-1].get_position()
         pg.draw.rect(self.surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])# character
-
-        # move past players
-        if self.time < self.past_time:
-            self.move_past_players_through_time()
 
         # draw all of the past players
         for player_num in range(len(self.players)-1):
@@ -410,9 +325,6 @@ class TimeMachine(Game):
             pg.draw.rect(self.surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])
             label = font.render("Player {}".format(player_num + 1), 1, (255, 0, 0))
             self.surf.blit(label, (player_pos.x, player_pos.y - 10))
-            
-            
 
         # return the surface so it can be blit
-        #return SurfaceInformation(self.surf, player_cam)
         return self.surf
