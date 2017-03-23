@@ -94,9 +94,11 @@ class TimeMachine(Game):
                 print "moving right"
             elif hat == (0, 0):
                 self.vel[0] = 0
-            val = self.controller.get_axis(1)
+            
+            val = self.controller.get_axis(0)
             if val != 0:
                 self.vel[0] = -val * TimeMachine.max_speed
+                #print val
                     
     def gravitation(self):
         if self.jump:

@@ -8,10 +8,14 @@ class DataCenter(Game):
         # The main surface is in self.main_surf
         # so want to blit my own surface there
         self.surf = pg.Surface((350, 600))# Screen is 650x600
+        self.delay = 0
 
     def handle_event(self, event):
          # handle keyboard or ds4
          pass
+
+    def get_delay(self):
+        return self.delay
 
     def update_ui(self, events):
         if self.is_active():
