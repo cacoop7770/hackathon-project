@@ -48,13 +48,8 @@ game_delay = 0
 
 # start the game
 while True:
-    val = controller.get_axis(0)
     
     game_time = time.time()
-
-    #if val != 0:
-    #    print val
-    #    print "\t", controller.get_hat(0)
 
     # Grab pygame events
     events = pg.event.get()
@@ -77,8 +72,6 @@ while True:
             
 
     # update the the surface of each game
-    #tm_surf_info = tm.update_ui(events)
-    #tm_surf = tm_surf_info.get_surface()
     tm_surf = tm.update_ui(events)
 
     # Only do this if not in debug mode
@@ -90,7 +83,6 @@ while True:
         gameDisplay.blit(dc_surf, (0, 0))
 
     # Draw each surface onto the main surface
-    #gameDisplay.blit(tm_surf, (const.DC_W, 0), tm_rect)
     gameDisplay.blit(tm_surf, (const.DC_W, 0))
     pg.display.flip()
 
