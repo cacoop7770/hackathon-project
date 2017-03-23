@@ -43,7 +43,7 @@ PLAYER_W = 50
 #gravity = 0.025
 gravity = 0.1
 #max_speed = 1
-max_speed = 5
+max_speed = 4
 #jump_power = 3
 jump_power = 7
 

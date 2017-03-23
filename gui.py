@@ -1,5 +1,6 @@
 import pygame as pg
 
+from game_states import GameState
 from ps4 import DeadController
 
 
@@ -9,7 +10,7 @@ class Game:
         self.controller = controller # A game uses this (could be a DeadController).
         self._physical_controller = controller # The actual PS4 controller
         self._dead_controller = DeadController() # A controller that does not work.
-        self.game_over = False# For game over checks
+        self.state = GameState.PLAY 
 
     def is_active(self):
         return self._running
@@ -34,6 +35,10 @@ class Game:
         """Read controller status (e.g. is a button down) and update the world."""
         raise NotImplementedError
 
+    def __draw_active(self, surf):
+        """Draw the active outline on this surface."""
+        pg.draw.rect(surf, (255, 0, 0), pg.Rect(0, 0, surf.get_width(), surf.get_height()), 10)
+
     def update_ui(self, events):
         """Redraw the surface and return it.
 
@@ -43,8 +48,13 @@ class Game:
             for event in events:
                 self.handle_event(event)
         self.update_world()
-        if not self.game_over:
-            return self.redraw()
+        
+        rtn = self.redraw()
+        if self.is_active():
+            self.__draw_active(rtn)
+
+        if self.state not in [GameState.GAME_WIN, GameState.GAME_LOSE]:
+            return rtn
         else:
             return None
 

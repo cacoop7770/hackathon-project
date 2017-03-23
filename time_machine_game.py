@@ -11,17 +11,12 @@
 import pygame as pg
 
 import const
+from game_states import GameState
 from gui import Game
 from surface_info import SurfaceInformation
 from space_time import SpaceTime
 from players import Player, CurrentPlayer, PastPlayer
 from time_machine_objects import Platform
-
-class GameState:
-    PLAY = 0
-    TIME_TRAVEL = 1
-    GAME_WIN = 2
-    GAME_LOSE = 3
 
 class TimeMachine(Game):
     def __init__(self, controller, levels_config=None):
@@ -48,7 +43,6 @@ class TimeMachine(Game):
         self.add_player()
 
         self._backwards = False
-        self.state = GameState.PLAY
 
         # keep track of platforms
         self.platforms = self.get_platforms(1)
@@ -193,11 +187,11 @@ class TimeMachine(Game):
             hat = self.controller.get_hat(0)
             if hat == const.PS_LEFT:
                 # move left
-                self.vel[0] = -Player.max_speed
+                self.vel[0] = -const.max_speed
                 print "moving left"
             elif hat == const.PS_RIGHT:
                 #move right
-                self.vel[0] = Player.max_speed
+                self.vel[0] = const.max_speed
                 print "moving right"
             elif hat == const.PS_NO_DPAD:
                 self.vel[0] = 0
@@ -283,9 +277,8 @@ class TimeMachine(Game):
 
         # Check if player died
         if self.pos[1] > const.SCREEN_H:
-            self.game_over = True
-        print self.pos[1]
-            
+            self.state = GameState.GAME_LOSE
+
     def move(self):
         if self.vel != [0, 0]:
             self.pos[0] += self.vel[0]

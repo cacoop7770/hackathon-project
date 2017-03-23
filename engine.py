@@ -1,6 +1,7 @@
 """Allow for two games to be run at the same time."""
 
 import json
+import argparse
 
 import pygame as pg
 import time
@@ -9,13 +10,20 @@ from data_center_game import DataCenter
 from delayed_joystick import DelayedJoystick, FutureEvent
 from time_machine_game import TimeMachine
 
-# constants
-DEBUG = False
+parser = argparse.ArgumentParser()
+parser.add_argument('game', nargs='?', choices=['tm', 'dc'], help='Launch this game only')
+args = parser.parse_args()
 
 # initialize pygame and the display
 pg.init()
+if args.game is None:
+    display_width = const.DC_W + const.MAIN_GAME_W
+elif args.game == 'tm':
+    display_width = const.MAIN_GAME_W
+else:
+    display_width = const.DC_W
 gameDisplay = pg.display.set_mode((
-    const.DC_W + const.MAIN_GAME_W,
+    display_width,
     const.SCREEN_H
 ))
 pg.display.set_caption("Hackathon project")
@@ -36,8 +44,14 @@ with open('levels.json') as f_obj:
 print data
 
 # init the games
-tm = TimeMachine(controller, levels_config=data)
-dc = DataCenter(controller)
+if args.game is None:
+    tm = TimeMachine(controller, levels_config=data)
+    dc = DataCenter(controller)
+    dc.deactivate()
+elif args.game == 'tm':
+    tm = TimeMachine(controller, levels_config=data)
+else:
+    dc = DataCenter(controller)
 delayed_joystick = DelayedJoystick()
 
 # keep track of game time
@@ -70,6 +84,8 @@ while True:
         delayed_joystick.delete_queued_events()
 
     # change active game
+    '''
+<<<<<<< HEAD
     for event in events:
         if event.type == pg.JOYBUTTONDOWN:
             if event.button == const.PS_R1:
@@ -90,13 +106,36 @@ while True:
     # Only do this if not in debug mode
     if not DEBUG:
         #tm_rect = tm_surf_info.get_rect()
-        dc_surf = dc.update_ui(events)
+=======
+    '''
+    if args.game is None:
+        for event in events:
+            if event.type == pg.JOYBUTTONDOWN:
+                if event.button == const.PS_R1:
+                    tm.activate()
+                    dc.deactivate()
+                elif event.button == const.PS_L1:
+                    tm.deactivate()
+                    dc.activate()
 
-        # Draw each surface onto the main surface
+    if args.game is None:
+        # update the the surface of each game
+        tm_surf = tm.update_ui(events)
+        dc_surf = dc.update_ui(events)
+        if not tm_surf or not dc_surf:
+                print "Game over!"
+                break
+
+        gameDisplay.blit(dc_surf, (0, 0))
+        gameDisplay.blit(tm_surf, (const.DC_W, 0))
+    elif args.game == 'tm':
+        tm_surf = tm.update_ui(events)
+        gameDisplay.blit(tm_surf, (0, 0))
+    else:
+        #>>>>>>> c2d3dfa24017c170c2c004ed5e0b491a57af09d0
+        dc_surf = dc.update_ui(events)
         gameDisplay.blit(dc_surf, (0, 0))
 
-    # Draw each surface onto the main surface
-    gameDisplay.blit(tm_surf, (const.DC_W, 0))
     pg.display.flip()
 
     pg.time.delay(10)# smooth out the animation by adding a delay of 1/10th of a second
