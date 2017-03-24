@@ -66,13 +66,15 @@ class TimeMachine(Game):
             platforms.append(platform)
         return platforms
 
-    def add_player(self):
+    def add_player(self, end_time=None):
         # first move current player into a past player
         if len(self.players) > 0:
             player_num = self.players[-1].get_player_num()
             pos = self.players[-1].get_position()
             positions = self.players[-1].get_positions()
-            past_player = PastPlayer(player_num, self.time, pos)
+
+            past_player = PastPlayer(player_num, self.time, pos, end_time)
+            print "Added a player at time: {} with finish time: {}".format(self.time, end_time)
             past_player.set_position(pos)
             past_player.set_positions(positions)
 
@@ -80,7 +82,7 @@ class TimeMachine(Game):
 
         # now add a new player
         new_player_pos = pg.math.Vector2(const.PORTAL_X, const.PORTAL_Y)
-        new_player = CurrentPlayer(len(self.players)+1, self.time, start_pos=new_player_pos)
+        new_player = CurrentPlayer(len(self.players)+1, self.new_time, start_pos=new_player_pos)
         #new_player.set_position(pg.math.Vector2(const.PORTAL_X, const.PORTAL_Y))
         self.pos = new_player.get_position()
         self.players.append(new_player)
@@ -119,7 +121,8 @@ class TimeMachine(Game):
                 self.time = self.new_time
                 
                 # add a new player when going back in time
-                self.add_player()
+                self.add_player(self.past_time)
+                
                 return
         
         if self.controller:
@@ -127,11 +130,9 @@ class TimeMachine(Game):
             if hat == const.PS_LEFT:
                 # move left
                 self.new_time -= 2
-                print "moving tick left"
             elif hat == const.PS_RIGHT:
                 # move right
                 self.new_time += 2
-                print "moving tick right"
         
         if self.new_time > self.time:
             self.new_time = self.time
@@ -188,11 +189,9 @@ class TimeMachine(Game):
             if hat == const.PS_LEFT:
                 # move left
                 self.vel[0] = -const.max_speed
-                print "moving left"
             elif hat == const.PS_RIGHT:
                 #move right
                 self.vel[0] = const.max_speed
-                print "moving right"
             elif hat == const.PS_NO_DPAD:
                 self.vel[0] = 0
             
@@ -224,6 +223,7 @@ class TimeMachine(Game):
         if self.time < self.past_time:
             self.move_past_players_through_time()
 
+
     def gravitation(self):
         '''
         Handles gravity and moves the character accordingly
@@ -253,18 +253,13 @@ class TimeMachine(Game):
             if self.pos[0] > player_x - const.PLAYER_W and self.pos[0] < player_x + const.PLAYER_W:
                 if self.pos[1] < player_y:
                     self.current_landing_y = player_y #- const.PLAYER_H
-                    print self.current_landing_y, "Changed to player:", i
               
-        if landings_to_check:
-            print "to check: {}, current: {}".format(landings_to_check, self.current_landing_y)
-
         for landing in landings_to_check:
             if landing < self.current_landing_y:
                 self.current_landing_y = landing
        
         # perform the gravity
         if self.jump or self.pos[1] < self.current_landing_y:
-            #print "Using gravity"
             self.vel[1] += const.gravity
 
         # stopping conditions
@@ -273,7 +268,6 @@ class TimeMachine(Game):
             if self.vel[1] > 0:
                 self.jump = False
                 self.vel[1] = 0
-                #self.pos[1] = self.current_landing_y - const.PLAYER_H
 
         # Check if player died
         if self.pos[1] > const.SCREEN_H:
@@ -281,6 +275,27 @@ class TimeMachine(Game):
 
     def move(self):
         if self.vel != [0, 0]:
+            # do not let player run into other players
+            for player in self.players:
+                if not isinstance(player, PastPlayer):
+                    continue
+                if not player.exists(self.time) or player.expired(self.time):
+                    continue
+                player_pos = player.get_position()
+                if self.pos[0] + const.PLAYER_W > player_pos.x and self.pos[0] < player_pos.x + const.PLAYER_W:
+                    if player_pos.y < self.pos[1] < player_pos.y + const.PLAYER_H \
+                      or self.pos[1] < player_pos.y < self.pos[1] + const.PLAYER_H:
+                        self.vel = [0, 0]
+                        
+                        # move off player
+                        # if on the left then move a bit to the left
+                        if self.pos[0] < player_pos.x:
+                            self.pos[0] -= 1
+                        else:
+                            self.pos[0] += 1
+                        return
+
+            # allow the player to move if not touching another player
             self.pos[0] += self.vel[0]
             self.pos[1] += self.vel[1]
             self.players[-1].set_position(pg.math.Vector2(self.pos[0], self.pos[1]))
@@ -292,7 +307,7 @@ class TimeMachine(Game):
         '''
         pass
 
-    def draw_text(self, text, pos, color=(0, 0, 0)):
+    def draw_text(self, text, pos, color=(0, 0, 0), disp=False):
         """
         Draws text onto the map surface
         
@@ -302,10 +317,15 @@ class TimeMachine(Game):
         :type: pos: position array (ie (x, y))
         :param: color: the color of the text
         :type: color: color arrray (r,g,b)
+        :param: disp: for display surface or map?
+        :type: disp: bool
         """
         font = pg.font.SysFont("monospace", 15)
         label = font.render(text, 1, color)
-        self.map_surf.blit(label, pos)
+        if not disp:
+            self.map_surf.blit(label, pos)
+        else:
+            self.disp_surf.blit(label, pos)
 
     def draw_portal(self, pos=None):
         if pos == None:
@@ -334,7 +354,7 @@ class TimeMachine(Game):
         # draw the circle which indicates when in time to go
         # how far to move per button press?
         tick_position = 550.0*(float(self.new_time) / float(self.time)) + 50
-        print "time: {}, new_time: {}, tick_positon: {}".format(self.time, self.new_time, tick_position)
+        #print "time: {}, new_time: {}, tick_positon: {}".format(self.time, self.new_time, tick_position)
         pg.draw.circle(machine_surface, (255, 0, 0), [int(tick_position), 110], 20)
 
         # write the time you go back to
@@ -354,6 +374,7 @@ class TimeMachine(Game):
                     player.set_position(position)
 
     def draw_time(self):
+        #self.draw_text("Current Time: {}".format(self.time), (10, 10), disp=True)
         font = pg.font.SysFont("monospace", 15)
         label = font.render("Current Time: {}".format(self.time), 1, (0, 0, 0))
         self.disp_surf.blit(label, (10, 10))
@@ -417,6 +438,7 @@ class TimeMachine(Game):
         self.map_surf.fill(white)
         self.disp_surf.fill(black)
         pg.draw.rect(self.map_surf, green, [400, 300, 20, 20])# reference box
+        #pg.draw.rect(self.map_surf, green, [0, 20, 20, 20])# reference box
         
         # Draw the beginning portal
         #self.draw_portal()
@@ -425,14 +447,18 @@ class TimeMachine(Game):
         self.draw_level(1)
 
         # draw the current time in the upper left corner (draw this later)
-        #self.draw_time() 
+        self.draw_time() 
 
         ## TIME TRAVEL
         if self.state == GameState.TIME_TRAVEL:
             # redraw the players at self.new_time
             for player_num in range(len(self.players)):
-                player_pos = self.players[player_num].get_position_at_time(self.new_time)
+                player = self.players[player_num]
+                player_pos = player.get_position_at_time(self.new_time)
                 if player_pos == None:
+                    continue
+                # do not draw a player if it does not exist
+                if not player.exists(self.new_time) or player.expired(self.new_time):
                     continue
                 pg.draw.rect(self.map_surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])
                 label = font.render("Player {}".format(player_num + 1), 1, (255, 0, 0))
@@ -449,8 +475,11 @@ class TimeMachine(Game):
 
             # draw all of the past players
             for player_num in range(len(self.players)-1):
+                player = self.players[player_num]
                 player_pos = self.players[player_num].get_position()
                 if player_pos == None:
+                    continue
+                if not player.exists(self.time) or player.expired(self.time):
                     continue
                 pg.draw.rect(self.map_surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])
                 label = font.render("Player {}".format(player_num + 1), 1, (255, 0, 0))
