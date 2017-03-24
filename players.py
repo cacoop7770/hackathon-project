@@ -1,4 +1,5 @@
 import pygame as pg
+import const
 from space_time import SpaceTime
 
 class Player:
@@ -15,6 +16,9 @@ class Player:
 
     def get_position(self):
         return self._pos
+
+    def get_rect(self):
+        return pg.Rect(self._pos[0], self._pos[1], const.PLAYER_W, const.PLAYER_H)
 
     def expired(self, time):
         '''

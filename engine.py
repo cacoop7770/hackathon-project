@@ -1,7 +1,8 @@
 """Allow for two games to be run at the same time."""
 
-import json
 import argparse
+import json
+import sys
 
 import pygame as pg
 import time
@@ -67,6 +68,16 @@ while True:
 
     # Grab pygame events
     events = pg.event.get()
+
+
+    # check for quit
+    for event in events:
+        if event.type == pg.JOYBUTTONDOWN:
+            if event.button == const.PS_PS:
+                pg.quit()
+                print "Quit game"
+                sys.exit()
+                break
 
     # if there is a delay, add all events to the delayed controller
     if game_delay > 0:

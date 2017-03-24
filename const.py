@@ -50,7 +50,7 @@ gravity = 0.3
 #max_speed = 1
 max_speed = 4
 #jump_power = 3
-jump_power = 7
+jump_power = 9
 
 MAP_W = 3000
 MAP_H = 3000
