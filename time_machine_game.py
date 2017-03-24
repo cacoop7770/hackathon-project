@@ -44,6 +44,9 @@ class TimeMachine(Game):
 
         self._backwards = False
 
+        # don't let the player move in some situations
+        self.allow_move = True
+
         # keep track of platforms
         self.platforms = self.get_platforms(1)
         self.current_landing_y = 1000
@@ -114,8 +117,14 @@ class TimeMachine(Game):
         :return: None
         :rtype: None
         '''
-        pass
-
+        if event.type == pg.JOYBUTTONDOWN:
+            if event.button == const.PS_X:
+                self.state = GameState.PLAY
+                self.restart()
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_RETURN:
+                self.state = GameState.PLAY
+                self.restart()
 
     def handle_backwards_event(self, event):
         '''
@@ -290,6 +299,9 @@ class TimeMachine(Game):
             self.state = GameState.GAME_LOSE
 
     def move(self):
+        if not self.allow_move:
+            return
+
         if self.vel != [0, 0]:
             # do not let player run into other players
             for player in self.players:
@@ -335,7 +347,7 @@ class TimeMachine(Game):
                 return True
         return False
 
-    def draw_popup(self, text, disp_location):
+    def draw_popup(self, text, disp_location, popup_size=None):
         '''
         Draws a popup with given text on the screen
         
@@ -346,7 +358,7 @@ class TimeMachine(Game):
 
         '''
         # draw a new surface
-        size = width, height =(400, 100)
+        size = width, height =(400, 100) if not popup_size else popup_size
         popup = pg.Surface(size)
         popup.fill((0, 0, 0))
         popup.fill((255, 255, 255), [10, 10, width - 20, height - 20])
@@ -488,6 +500,8 @@ class TimeMachine(Game):
         start = self.get_level_start(self.current_level)
         self.pos = [start[0], start[1]]
         self.platforms = self.get_platforms(self.current_level)
+        self.allow_move = True
+        self.vel = [0, 0]
 
     def draw_player(self, pos, player_num):
         """Draw a player.
@@ -553,7 +567,7 @@ class TimeMachine(Game):
             crnt_player = self.players[-1]
             player_pos = crnt_player.get_position()
             self.draw_player(player_pos, crnt_player.get_player_num())
-            self.draw_time((player_pos.x, player_pos.y - 20)) 
+            self.draw_time((player_pos.x-20, player_pos.y - 20)) 
 
             # draw all of the past players
             for player_num in range(len(self.players)-1):
@@ -570,10 +584,16 @@ class TimeMachine(Game):
         if self.check_win():
             self.state = GameState.GAME_WIN
             self.current_level += 1
+            self.state = GameState.POPUP
+            self.draw_popup("Congrats! You beat level {}. Press X to continue".format(self.current_level - 1), (100,100))
             print "Moving onto level {}".format(self.current_level)
-            self.state = GameState.PLAY
-            self.restart()
+            self.allow_move = False
+            #self.state = GameState.PLAY
+            #self.restart()
             #return None
+        if self.state == GameState.POPUP:
+            self.draw_popup("Congrats! You beat level {}. Press X to continue.".format(self.current_level - 1), (100,100), popup_size=(600, 100))
+
         # return the surface so it can be blit
 
         #self.draw_popup("this is text", (100, 100))
