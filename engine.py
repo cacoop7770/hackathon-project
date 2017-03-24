@@ -142,4 +142,4 @@ while True:
 
     pg.display.flip()
 
-    pg.time.delay(10)# smooth out the animation by adding a delay of 1/10th of a second
+#    pg.time.delay(10)# smooth out the animation by adding a delay of 1/10th of a second

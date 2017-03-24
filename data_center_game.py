@@ -104,7 +104,7 @@ class DataCenter(Game):
             self.lead_y = 0
         if self.lead_y > const.SCREEN_H:
             self.lead_y = const.SCREEN_H
-        clock.tick(60)
+#        clock.tick(60)
 
         # move character if not moving
         if self.drifting:
