@@ -617,12 +617,9 @@ class TimeMachine(Game):
         )
         rect = pg.Rect(player_pos.x-const.HALF_SCREEN_W, player_pos.y -const.HALF_SCREEN_H, const.MAIN_GAME_W, const.SCREEN_H)
         self.disp_surf.blit(self.map_surf, (0,0), rect) #todo: fix
-<<<<<<< HEAD
    
     def level_exists(self, level):
         return "Level {}".format(level) in self.levels_config
-=======
->>>>>>> b4d7750b15501a9eb368a5997a790cd58571260c
 
     def restart(self):
         start = self.get_level_start(self.current_level)
