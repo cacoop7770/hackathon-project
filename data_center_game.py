@@ -1,7 +1,9 @@
 import pygame as pg
+import math
 
 import const
 from gui import Game
+from game_states import GameState
 
 white = (255,255,255)
 black = (0,0,0)
@@ -26,9 +28,15 @@ class DataCenter(Game):
         self.lead_x_change = 0
         self.lead_y_change = 0
 
+        self.goal_x = 200
+        self.goal_y = 50
 
+        self.drift_to = [40, 500]
+        self.drifting = False
         ### EDIT CODE1 ABOVE ###
 
+
+    
 
     def handle_event(self, event):
         """handle keyboard or ds4"""
@@ -59,6 +67,8 @@ class DataCenter(Game):
         # using the controller
         if self.controller:
             direction_down = self.controller.get_hat(0)
+            if direction_down != const.PS_NO_DPAD:
+                self.drifting = False
             if direction_down == const.PS_LEFT:
                 self.lead_x_change = -3
             elif direction_down == const.PS_RIGHT:
@@ -71,12 +81,16 @@ class DataCenter(Game):
             elif direction_down == const.PS_DOWN:
                 self.lead_y_change = 3
             elif direction_down == const.PS_NO_DPAD:
-                self.lead_y_change = 0
-                self.lead_x_change = 0
+                self.drifting = True
+                #self.lead_y_change = 0
+                #self.lead_x_change = 0
 
         ### EDIT CODE3 ABOVE ###
 
     def update_world(self):
+        if not self.is_active():
+            self.drifting = True
+
         if self.lead_x >= 0 and self.lead_x <= 350:
             self.lead_x += self.lead_x_change
         if self.lead_y >=0 and self.lead_y <= 600:
@@ -92,6 +106,24 @@ class DataCenter(Game):
             self.lead_y = 650
         clock.tick(60)
 
+        # move character if not moving
+        if self.drifting:
+            x_diff = self.drift_to[0] - self.lead_x
+            y_diff = self.drift_to[1] - self.lead_y
+
+            # find angle to drift to
+            angle = math.atan2(x_diff, y_diff)
+            x_component = math.sin(angle)
+            y_component = math.cos(angle)
+
+            self.lead_x_change = x_component/2.0
+            self.lead_y_change = y_component/2.0
+
+        # losing conditions
+        if self.drift_to[0] - 1 < self.lead_x < self.drift_to[0] + 1 \
+           and self.drift_to[1] - 1 < self.lead_y < self.drift_to[1] + 1:
+            self.state = GameState.GAME_LOSE
+
     def get_delay(self):
         return self.delay
 
@@ -101,6 +133,10 @@ class DataCenter(Game):
         ### EDIT CODE2 BELOW ###
         self.surf.fill(blue)
         pg.draw.rect(self.surf, black, [self.lead_x, self.lead_y, 30, 30])
+
+        # draw the goal
+        pg.draw.rect(self.surf, (0, 255, 0), [self.goal_x, self.goal_y, 50, 50])
+
         ### EDIT CODE2 ABOVE ###
 
         return self.surf
