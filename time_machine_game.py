@@ -3,7 +3,6 @@
 # TO DO:
 # - Seperate redraw code according to current game state
 #    -  Some wil share functions such as draw game
-# - Add riding a past character
 # - Add getting squished by past character
 ######################################
 '''
@@ -105,7 +104,7 @@ class TimeMachine(Game):
             self.handle_game_event(event)
         elif self.state == GameState.TIME_TRAVEL:
             self.handle_backwards_event(event)
-        elif self.state == GameState.POPUP:
+        elif self.state in [GameState.POPUP, GameState.SQUISHED]:
             self.handle_popup_event(event)
 
     def handle_popup_event(self, event):
@@ -249,7 +248,7 @@ class TimeMachine(Game):
         for platform in self.platforms:
             if not platform.is_vertical():
                 continue
-            my_rect = pg.Rect(self.pos[0], self.pos[1], const.PLAYER_W, const.PLAYER_H)
+            my_rect = self.get_rect()
             platform_pos = platform.get_start_and_end()
             wall_top = platform_pos[1] if platform_pos[1] > platform_pos[3] else platform_pos[3]
             wall_side = platform_pos[0]
@@ -359,7 +358,7 @@ class TimeMachine(Game):
         '''
         Returns true if there is a collision
         '''
-        my_rect = pg.Rect(self.pos[0], self.pos[1], const.PLAYER_W, const.PLAYER_H)
+        my_rect = self.get_rect()
         for player in self.players:
             if not isinstance(player, PastPlayer):
                 continue
@@ -540,6 +539,9 @@ class TimeMachine(Game):
 
         self.disp_surf.blit(machine_surface, (0, 450))
 
+    def get_rect(self):
+        return pg.Rect(self.pos[0], self.pos[1], const.PLAYER_W, const.PLAYER_H)
+
     def move_past_players_through_time(self):
         for player in self.players:
             if isinstance(player, PastPlayer):
@@ -547,6 +549,14 @@ class TimeMachine(Game):
                 if player.exists(self.time):
                     position = player.get_position_at_time(self.time)
                     player.set_position(position)
+                    
+                    # check if this player is squishing the current player
+                    my_rect = self.get_rect()
+                    player_rect = player.get_rect()
+                    if my_rect.colliderect(player_rect) and position[1]+const.PLAYER_H > self.pos[1] and position[1] < self.pos[1]:
+                        print "SQUISHED!"
+                        self.state = GameState.SQUISHED
+
 
     def draw_time(self, pos):
         #self.draw_text("Current Time: {}".format(self.time), (10, 10), disp=True)
@@ -684,6 +694,9 @@ class TimeMachine(Game):
 
         if self.state == GameState.POPUP:
             self.draw_popup("Congrats! You beat level {}. Press X to continue.".format(self.current_level - 1), (100,100), popup_size=(600, 100))
+        if self.state == GameState.SQUISHED:
+            self.draw_popup("You were squished! Press X to try again", (100,100), popup_size=(600, 100))
+
 
         # return the surface so it can be blit
 
