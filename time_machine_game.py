@@ -563,14 +563,20 @@ class TimeMachine(Game):
         this_level = self.levels_config[level_text]
         return this_level["start"]
 
+    def get_level(self, level_num=None):
+        """Return the level from levels_config.
+
+        If level_num is None, use the current level.
+        """
+        if level_num is None:
+            level_num = self.current_level
+        return self.levels_config['Level %s' % level_num]
+
     def draw_level(self, level_num):
         if not self.levels_config:
             return
-        level_text = "Level {}".format(level_num)
-        if level_text not in self.levels_config:
-            print "Level {} not in the configs".format(level_num)
-        this_level = self.levels_config[level_text]
-        
+        this_level = self.get_level(level_num)
+
         # draw lines
         for platform in self.platforms:
             #lines = [this_level[key] for key in this_level if key.startswith("line")]
@@ -589,12 +595,22 @@ class TimeMachine(Game):
         """Draw the map onto the display surface (camera code here)."""
         #todo: Move camera around in time travel mode
         player_pos = self.players[-1].get_position()
-        camera_pos = (
-            player_pos.x - const.HALF_SCREEN_W,
-            player_pos.y - const.HALF_SCREEN_H
-        )
-        rect = pg.Rect(player_pos.x-const.HALF_SCREEN_W, player_pos.y -const.HALF_SCREEN_H, const.MAIN_GAME_W, const.SCREEN_H)
-        self.disp_surf.blit(self.map_surf, (0,0), rect) #todo: fix
+
+        rect = pg.Rect(player_pos.x-const.HALF_MAIN_W, player_pos.y -const.HALF_SCREEN_H, const.MAIN_GAME_W, const.SCREEN_H)
+        self.disp_surf.blit(self.map_surf, (0,0), rect)
+
+        # Draw an arrow to the goal.
+        end_pos = self.get_level()['end']
+        if not rect.collidepoint(end_pos):
+            arrow_surf = pg.Surface((100, 100), flags=pg.SRCALPHA)
+            pg.draw.polygon(arrow_surf, (0, 255, 0), [(50, 50), (25, 25), (25, 75)])
+            vec_to_end = pg.math.Vector2(end_pos) - pg.math.Vector2(player_pos)
+            angle = -1 * vec_to_end.as_polar()[1]
+
+            arrow_surf = pg.transform.rotate(arrow_surf, angle)
+            dest = pg.math.Vector2(const.HALF_MAIN_W - arrow_surf.get_width() / 2, const.HALF_SCREEN_H - arrow_surf.get_height() / 2)
+            dest += vec_to_end.normalize() * const.PLAYER_H
+            self.disp_surf.blit(arrow_surf, dest)
    
     def restart(self):
         start = self.get_level_start(self.current_level)
@@ -622,7 +638,7 @@ class TimeMachine(Game):
             (const.PLAYER_W - text_surf.get_width()) / 2, 
             (const.PLAYER_H - text_surf.get_height()) / 2
         )   
-        self.map_surf.blit(text_surf, text_pos)
+        self.map_surf.blit(text_surf, text_pos)        
     
     def redraw(self):
         # -- update the game objects--
