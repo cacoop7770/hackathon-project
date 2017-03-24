@@ -3,8 +3,8 @@
 # TO DO:
 # - Seperate redraw code according to current game state
 #    -  Some wil share functions such as draw game
-# - Make character get pushed away if touching moving player
-# - 
+# - Add riding a past character
+# - Add getting squished by past character
 ######################################
 '''
 import pygame as pg
@@ -46,6 +46,7 @@ class TimeMachine(Game):
 
         # don't let the player move in some situations
         self.allow_move = True
+        self.player_to_ride = -1
 
         # keep track of platforms
         self.platforms = self.get_platforms(1)
@@ -136,6 +137,22 @@ class TimeMachine(Game):
         :return: None
         :rtype: None
         '''
+
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_BACKSPACE:
+                self.state = GameState.PLAY
+                self.past_time = self.time
+                self.time = self.new_time
+                
+                # add a new player when going back in time
+                self.add_player(self.past_time)
+                
+                return
+            if event.key == pg.K_LEFT:
+                self.new_time -= 2
+            if event.key == pg.K_RIGHT:
+                self.new_time += 2
+
         if event.type == pg.JOYBUTTONDOWN:
             if event.button == const.PS_TRI:
                 # pressing triangle stops the time machine
@@ -152,7 +169,7 @@ class TimeMachine(Game):
         if self.controller:
             hat = self.controller.get_hat(0)
             if hat == const.PS_LEFT:
-                # move left
+                # move lefti
                 self.new_time -= 2
             elif hat == const.PS_RIGHT:
                 # move right
@@ -188,6 +205,9 @@ class TimeMachine(Game):
                 if not self.jump:
                     self.vel[1] = -const.jump_power
                     self.jump = True
+            if event.key == pg.K_BACKSPACE:
+                self.state = GameState.TIME_TRAVEL
+                return
                 
         if event.type == pg.KEYUP:
             self.vel[0] = 0
@@ -247,6 +267,13 @@ class TimeMachine(Game):
         if self.time < self.past_time:
             self.move_past_players_through_time()
 
+        # Check if player won
+        if self.check_win():
+            self.current_level += 1
+            self.state = GameState.POPUP
+            #self.draw_popup("Congrats! You beat level {}. Press X to continue".format(self.current_level - 1), (100,100))
+            print "Moving onto level {}".format(self.current_level)
+            self.allow_move = False
 
     def gravitation(self):
         '''
@@ -267,7 +294,8 @@ class TimeMachine(Game):
             self.current_landing_y = 1000
 
          #landing_y = 1000#self.start_pos[1]
-        # then check the players to land on 
+        # then check the players to land on
+        self.player_to_ride = -1
         for i in range(len(self.players)-1):
             player_pos = self.players[i].get_position()
             if player_pos == None:
@@ -277,6 +305,7 @@ class TimeMachine(Game):
             if self.pos[0] > player_x - const.PLAYER_W and self.pos[0] < player_x + const.PLAYER_W:
                 if self.pos[1] < player_y:
                     self.current_landing_y = player_y #- const.PLAYER_H
+                    self.player_to_ride = i
               
         for landing in landings_to_check:
             if landing < self.current_landing_y:
@@ -301,22 +330,29 @@ class TimeMachine(Game):
     def move(self):
         if not self.allow_move:
             return
+        
+        # if riding ontop a player
+        if self.player_to_ride != -1 and not self.jump:
+            ride = self.players[self.player_to_ride]
+            self.pos[0] = ride.get_position().x
+            self.pos[1] = ride.get_position().y - const.PLAYER_H
 
-        if self.vel != [0, 0]:
+        #if self.vel != [0, 0]:
             # do not let player run into other players
-            for player in self.players:
-                if not isinstance(player, PastPlayer):
-                    continue
-                if not player.exists(self.time) or player.expired(self.time):
-                    continue
-                player_pos = player.get_position()
-                if self.pos[0] + const.PLAYER_W > player_pos.x and self.pos[0] < player_pos.x + const.PLAYER_W:
-                    if player_pos.y <= self.pos[1] <= player_pos.y + const.PLAYER_H \
-                      or self.pos[1] <= player_pos.y <= self.pos[1] + const.PLAYER_H:
-                        self.vel = [0, 0]
-                        
-                        # move off player
-                        # if on the left then move a bit to the left
+        for player in self.players:
+            if not isinstance(player, PastPlayer):
+                continue
+            if not player.exists(self.time) or player.expired(self.time):
+                continue
+            player_pos = player.get_position()
+            if self.pos[0] + const.PLAYER_W > player_pos.x and self.pos[0] < player_pos.x + const.PLAYER_W:
+                if player_pos.y <= self.pos[1] <= player_pos.y + const.PLAYER_H \
+                  or self.pos[1] <= player_pos.y <= self.pos[1] + const.PLAYER_H:
+                    self.vel = [0, 0]
+                    
+                    # move off player
+                    # if on the left then move a bit to the left
+                    if self.player_to_ride == -1:
                         if self.pos[0] < player_pos.x:
                             self.pos[0] = player_pos.x - const.PLAYER_W
                         else:
@@ -324,10 +360,10 @@ class TimeMachine(Game):
                             self.pos[0] = player_pos.x + const.PLAYER_W
                         return
 
-            # allow the player to move if not touching another player
-            self.pos[0] += self.vel[0]
-            self.pos[1] += self.vel[1]
-            self.players[-1].set_position(pg.math.Vector2(self.pos[0], self.pos[1]))
+        # allow the player to move if not touching another player
+        self.pos[0] += self.vel[0]
+        self.pos[1] += self.vel[1]
+        self.players[-1].set_position(pg.math.Vector2(self.pos[0], self.pos[1]))
     
     def check_win(self):
         ''' 
@@ -580,17 +616,6 @@ class TimeMachine(Game):
                 self.draw_player((player_pos.x, player_pos.y), player_num + 1)
             self.map_to_display()
 
-        
-        if self.check_win():
-            self.state = GameState.GAME_WIN
-            self.current_level += 1
-            self.state = GameState.POPUP
-            self.draw_popup("Congrats! You beat level {}. Press X to continue".format(self.current_level - 1), (100,100))
-            print "Moving onto level {}".format(self.current_level)
-            self.allow_move = False
-            #self.state = GameState.PLAY
-            #self.restart()
-            #return None
         if self.state == GameState.POPUP:
             self.draw_popup("Congrats! You beat level {}. Press X to continue.".format(self.current_level - 1), (100,100), popup_size=(600, 100))
 
