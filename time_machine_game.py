@@ -6,6 +6,7 @@
 # - Add getting squished by past character
 ######################################
 '''
+import math
 import pygame as pg
 
 import const
@@ -50,6 +51,16 @@ class TimeMachine(Game):
         # keep track of platforms
         self.platforms = self.get_platforms(1)
         self.current_landing_y = 1000
+        
+    def get_current_level(self):
+        if not self.levels_config:
+            return []
+        level_text = "Level {}".format(self.current_level)
+        if level_text not in self.levels_config:
+            print "Level {} not in the configs".format(self.current_level)
+        this_level = self.levels_config[level_text]
+        return this_level
+
 
     def get_platforms(self, level_num):
         if not self.levels_config:
@@ -606,6 +617,9 @@ class TimeMachine(Game):
         rect = pg.Rect(player_pos.x-const.HALF_SCREEN_W, player_pos.y -const.HALF_SCREEN_H, const.MAIN_GAME_W, const.SCREEN_H)
         self.disp_surf.blit(self.map_surf, (0,0), rect) #todo: fix
    
+    def level_exists(self, level):
+        return "Level {}".format(level) in self.levels_config
+
     def restart(self):
         start = self.get_level_start(self.current_level)
         self.pos = [start[0], start[1]]
@@ -613,6 +627,7 @@ class TimeMachine(Game):
         self.allow_move = True
         self.vel = [0, 0]
         self.players = []
+        self.time = 0
         self.add_player()
 
     def draw_player(self, pos, player_num):
@@ -633,7 +648,41 @@ class TimeMachine(Game):
             (const.PLAYER_H - text_surf.get_height()) / 2
         )   
         self.map_surf.blit(text_surf, text_pos)
-    
+  
+    def draw_arrow_above_character2(self):
+        level = self.get_current_level()
+        end = level["end"]
+        x_diff = end[0] - self.pos[0]
+        y_diff = end[1] + 50 - self.pos[1]
+        angle = math.atan2(x_diff, y_diff)
+        arrow_start = (self.pos[0] - 20, self.pos[1] - 40)
+
+        arrow_surf = pg.Surface((50, 50))
+        arrow_surf.fill((255, 255, 255))
+        deg_angle = math.degrees(angle)
+
+        pg.draw.line(arrow_surf, (0,0,0), (0, 0), (25, 25), 2)
+        pg.draw.line(arrow_surf, (0,0,0), (0, 50), (25, 25), 2)
+
+        pg.transform.rotate(arrow_surf, deg_angle)
+        print "Angle", deg_angle
+        self.map_surf.blit(arrow_surf, arrow_start)
+
+    def draw_arrow_above_character(self):
+        level = self.get_current_level()
+        end = level["end"]
+        x_diff = end[0] - self.pos[0]
+        y_diff = end[1] + 50 - self.pos[1]
+        angle = math.atan2(x_diff, y_diff)
+        arrow_start = (self.pos[0] - 20, self.pos[1] - 40)
+
+        radius = 50
+        dx = radius * math.sin(angle)
+        dy = radius * math.cos(angle)
+        arrow_end = (arrow_start[0] + dx, arrow_start[1] + dy)
+        pg.draw.line(self.map_surf, (0,0,0), arrow_start, arrow_end, 2)
+        
+
     def redraw(self):
         # -- update the game objects--
         black = (0, 0, 0)
@@ -652,7 +701,10 @@ class TimeMachine(Game):
         #self.draw_portal()
 
         # draw the level objects
-        self.draw_level(self.current_level)
+        if self.level_exists(self.current_level):
+            self.draw_level(self.current_level)
+        else:
+            return None
 
         # draw the current time in the upper left corner (draw this later)
         #self.draw_time() 
@@ -678,7 +730,10 @@ class TimeMachine(Game):
             crnt_player = self.players[-1]
             player_pos = crnt_player.get_position()
             self.draw_player(player_pos, crnt_player.get_player_num())
+            # draw time above player
             self.draw_time((player_pos.x-20, player_pos.y - 20)) 
+            #draw arrow above time
+            #self.draw_arrow_above_character()
 
             # draw all of the past players
             for player_num in range(len(self.players)-1):
