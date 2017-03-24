@@ -340,6 +340,8 @@ class TimeMachine(Game):
             player_pos = self.players[i].get_position()
             if player_pos == None:
                 continue
+            if self.players[i].expired(self.time):
+                continue
             player_x = player_pos.x
             player_y = player_pos.y
             if self.pos[0] > player_x - const.PLAYER_W and self.pos[0] < player_x + const.PLAYER_W:
