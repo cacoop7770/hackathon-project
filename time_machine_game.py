@@ -341,7 +341,7 @@ class TimeMachine(Game):
         port_surf = pg.Surface((diam, diam), flags=pg.SRCALPHA)
         pg.draw.circle(port_surf, (255,0,0), (rad, rad), rad)
         rect = pg.Rect(rad - p_w / 2, rad - p_h / 2, p_w, p_h)
-        pg.draw.rect(port_surf, (255, 255, 0), rect, 3)
+        pg.draw.rect(port_surf, (255, 255, 0), rect, const.PLAYER_THICK)
         self.map_surf.blit(port_surf, pos - (pg.math.Vector2(rad, rad) - pg.math.Vector2(p_w2, p_h2)))
 #        self.draw_text("Portal", (pos[0], pos[1] - 20), color=(255, 0, 0))
 

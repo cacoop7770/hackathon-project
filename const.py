@@ -38,6 +38,7 @@ HALF_SCREEN_W = (DC_W + MAIN_GAME_W) / 2
 
 PLAYER_H = 100
 PLAYER_W = 50
+PLAYER_THICK = 3
 
 # Here for now
 #gravity = 0.025
