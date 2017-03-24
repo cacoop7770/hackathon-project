@@ -69,8 +69,8 @@ class Player:
         :return: player position
         :rtype: pygame.math.Vector2
         '''
-        if not self.exists(time):
-            return None
+        #if not self.exists(time):
+        #    return None
 
         for i in range(len(self._positions)):
             t = self._positions[i].get_time()
