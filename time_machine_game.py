@@ -51,7 +51,11 @@ class TimeMachine(Game):
         # keep track of platforms
         self.platforms = self.get_platforms(1)
         self.current_landing_y = 1000
-        
+
+    def get_death_height(self):
+        level = self.get_current_level()
+        return level["death"]
+
     def get_current_level(self):
         if not self.levels_config:
             return []
@@ -340,7 +344,7 @@ class TimeMachine(Game):
 
         # if that platform isn't under you anymore
         if self.current_landing_y not in landings_to_check:
-            self.current_landing_y = 1000
+            self.current_landing_y = self.get_death_height() + 500
 
          #landing_y = 1000#self.start_pos[1]
         # then check the players to land on
@@ -375,8 +379,9 @@ class TimeMachine(Game):
                 self.vel[1] = 0
 
         # Check if player died
-        if self.pos[1] > const.DEATH_Y:
+        if self.pos[1] > self.get_death_height():
             self.state = GameState.GAME_LOSE
+        print "posoition", self.pos
 
     def check_player_collisions(self):
         '''
