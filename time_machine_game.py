@@ -131,6 +131,8 @@ class TimeMachine(Game):
         '''
         if event.type == pg.JOYBUTTONDOWN:
             if event.button == const.PS_X:
+                if self.state == GameState.SQUISHED:
+                    self.current_level -= 1
                 self.state = GameState.PLAY
                 self.current_level += 1
                 print "moving onto level",self.current_level
@@ -239,6 +241,8 @@ class TimeMachine(Game):
                 # pressing triangle starts the time machine
                 self.state = GameState.TIME_TRAVEL
                 return
+            elif event.button == const.PS_SHARE:
+                self.restart()
 
         if self.controller:
             #print self.controller.get_numhats()
