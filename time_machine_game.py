@@ -326,6 +326,9 @@ class TimeMachine(Game):
         Handles gravity and moves the character accordingly
         '''
 
+        if self.state == GameState.TIME_TRAVEL:
+            return
+
         # unless it lands back on the surface
         # change this so it can jump on top of another player
 
@@ -408,6 +411,10 @@ class TimeMachine(Game):
 
     def move(self):
         if not self.allow_move:
+            return
+
+        # do not move during time travel mode
+        if self.state == GameState.TIME_TRAVEL:
             return
 
         # if riding ontop a player
