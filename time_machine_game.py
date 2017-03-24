@@ -245,6 +245,27 @@ class TimeMachine(Game):
                 #print val
                 pass
 
+    def check_wall_collisions(self):
+        for platform in self.platforms:
+            if not platform.is_vertical():
+                continue
+            my_rect = pg.Rect(self.pos[0], self.pos[1], const.PLAYER_W, const.PLAYER_H)
+            platform_pos = platform.get_start_and_end()
+            wall_top = platform_pos[1] if platform_pos[1] > platform_pos[3] else platform_pos[3]
+            wall_side = platform_pos[0]
+            wall_rect = pg.Rect(platform_pos[0], platform_pos[1], 2, abs(platform_pos[3]-platform_pos[1]))
+            print "myrect:",my_rect,"platform", wall_rect
+            if my_rect.colliderect(wall_rect):
+                # fix position now
+                print "******myrect:",my_rect,"platform", wall_rect
+                if self.pos[0] < wall_side - 20:
+                    self.pos[0] = wall_side - const.PLAYER_W
+                
+                if self.pos[0] + const.PLAYER_W > wall_side + 20:
+                    self.pos[0] = wall_side + 5
+                return True
+        return False
+
     def update_world(self):
         '''
         Update the state of the world before redrawing
@@ -269,6 +290,9 @@ class TimeMachine(Game):
         
         # do not let player run into other players
         if self.check_player_collisions():
+            return
+
+        if self.check_wall_collisions():
             return
 
         # Check if player won
@@ -492,7 +516,7 @@ class TimeMachine(Game):
         '''
 
         # draw the surface for the time machine
-        machine_surface = pg.Surface((650, 150))
+        machine_surface = pg.Surface((const.MAIN_GAME_W, 150))
         
         # make the strip grey
         machine_surface.fill((100, 100, 100))
