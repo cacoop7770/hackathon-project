@@ -79,22 +79,13 @@ class DataCenter(Game):
 
         ### EDIT CODE3 ABOVE ###
 
-    def update_world():
-        pass
-
-    def get_delay(self):
-        return self.delay
-
-    def update_ui(self, events):
-        if self.is_active():
-            for event in events:
-                self.handle_event(event)
+    def update_world(self):
         self.lead_x += self.lead_x_change
         self.lead_y += self.lead_y_change
         clock.tick(30)
 
-        # return the surface so it can be blit
-        return self.redraw()
+    def get_delay(self):
+        return self.delay
 
     def redraw(self):
         """Redraw the datacenter surface and return it."""

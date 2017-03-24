@@ -3,14 +3,12 @@ from space_time import SpaceTime
 
 class Player:
     """Any of the players (past, present, and future)."""
-    max_speed = 1
-    jump_power = 3
-
-    def __init__(self, player_num, time, start_pos):
+    def __init__(self, player_num, time, start_pos, finish_time=None):
         self._player_num = player_num
         self._pos = start_pos#pg.math.Vector2(300, 300)# Arbitrary start position
         self._positions = []# Collection of SpaceTime objects
         self.start_time = time# game time when the player started
+        self.finish_time = finish_time# When the player became a Past Player
 
     def get_player_num(self):
         return self._player_num
@@ -18,9 +16,25 @@ class Player:
     def get_position(self):
         return self._pos
 
+    def expired(self, time):
+        '''
+        Check if player is expired at given time
+        '''
+        if not self.finish_time:
+            return False
+        if time > self.finish_time:
+            return True
+        return False
+
     def exists(self, time):
         '''
         Checks if player exists at given time
+        '''
+        '''
+        if self.finish_time:
+            if time > self.finish_time:
+                print "PLAYER DOES NOT EXIST at time {} b/c finish: {}".format(time, self.finish_time)
+                return False
         '''
         return time > self.start_time
 
@@ -78,6 +92,6 @@ class CurrentPlayer(Player):
 
 class PastPlayer(Player):
     """Player in the past"""
-    def __init__(self, player_num, time, start_pos=pg.math.Vector2(300, 300)):
-        Player.__init__(self, player_num, time, start_pos)
+    def __init__(self, player_num, time, start_pos=pg.math.Vector2(300, 300), finish_time=None):
+        Player.__init__(self, player_num, time, start_pos, finish_time)
 
