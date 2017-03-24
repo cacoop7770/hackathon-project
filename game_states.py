@@ -6,5 +6,4 @@ class GameState:
     GAME_LOSE = 3
     POPUP = 4
     SQUISHED = 5
-
-
+    RESTART = 6
