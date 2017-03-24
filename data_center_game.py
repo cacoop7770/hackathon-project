@@ -60,19 +60,16 @@ class DataCenter(Game):
         if self.controller:
             direction_down = self.controller.get_hat(0)
             if direction_down == const.PS_LEFT:
-                if self.lead_x >= 0:
-                    self.lead_x_change = -2
-                else:
-                    self.lead_x_change = 0
+                self.lead_x_change = -3
             elif direction_down == const.PS_RIGHT:
-                if self.lead_x < 350:
-                    self.lead_x_change = 2
-                else:
-                    self.lead_x_change = 0
+                self.lead_x_change = 3
             elif direction_down == const.PS_UP:
-                self.lead_y_change = -2
+                if self.lead_y > 0:
+                    self.lead_y_change = -3
+                else:
+                    self.lead_y_change = 0
             elif direction_down == const.PS_DOWN:
-                self.lead_y_change = 2
+                self.lead_y_change = 3
             elif direction_down == const.PS_NO_DPAD:
                 self.lead_y_change = 0
                 self.lead_x_change = 0
@@ -80,9 +77,20 @@ class DataCenter(Game):
         ### EDIT CODE3 ABOVE ###
 
     def update_world(self):
-        self.lead_x += self.lead_x_change
-        self.lead_y += self.lead_y_change
-        clock.tick(30)
+        if self.lead_x >= 0 and self.lead_x <= 350:
+            self.lead_x += self.lead_x_change
+        if self.lead_y >=0 and self.lead_y <= 600:
+            self.lead_y += self.lead_y_change
+
+        if self.lead_x < 0:
+            self.lead_x = 0
+        if self.lead_x > 350:
+            self.lead_x = 350
+        if self.lead_y < 0:
+            self.lead_y = 0
+        if self.lead_y > 600:
+            self.lead_y = 650
+        clock.tick(60)
 
     def get_delay(self):
         return self.delay
@@ -92,7 +100,7 @@ class DataCenter(Game):
 
         ### EDIT CODE2 BELOW ###
         self.surf.fill(blue)
-        pg.draw.rect(self.surf, black, [self.lead_x, self.lead_y, 10, 10])
+        pg.draw.rect(self.surf, black, [self.lead_x, self.lead_y, 30, 30])
         ### EDIT CODE2 ABOVE ###
 
         return self.surf
