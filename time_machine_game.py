@@ -132,6 +132,8 @@ class TimeMachine(Game):
         if event.type == pg.JOYBUTTONDOWN:
             if event.button == const.PS_X:
                 self.state = GameState.PLAY
+                self.current_level += 1
+                print "moving onto level",self.current_level
                 self.restart()
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_RETURN:
@@ -224,7 +226,7 @@ class TimeMachine(Game):
             self.vel[0] = 0
 
         if event.type == pg.JOYBUTTONDOWN:
-            print "Event type:", event.button
+            #print "Event type:", event.button
             if event.button == const.PS_X:
                 #print "Jumped!"
                 if not self.jump:
@@ -266,10 +268,10 @@ class TimeMachine(Game):
             wall_top = platform_pos[1] if platform_pos[1] < platform_pos[3] else platform_pos[3]
             wall_side = platform_pos[0]
             wall_rect = pg.Rect(platform_pos[0], wall_top, 2, abs(platform_pos[3]-platform_pos[1]))
-            print "myrect:",my_rect,"platform", wall_rect
+            #print "myrect:",my_rect,"platform", wall_rect
             if my_rect.colliderect(wall_rect):
                 # fix position now
-                print "******myrect:",my_rect,"platform", wall_rect
+                #print "******myrect:",my_rect,"platform", wall_rect
                 if self.pos[0] < wall_side - 20:
                     self.pos[0] = wall_side - const.PLAYER_W
                 
@@ -309,10 +311,10 @@ class TimeMachine(Game):
 
         # Check if player won
         if self.check_win():
-            self.current_level += 1
+            #self.current_level += 1
             self.state = GameState.POPUP
             #self.draw_popup("Congrats! You beat level {}. Press X to continue".format(self.current_level - 1), (100,100))
-            print "Moving onto level {}".format(self.current_level)
+            #print "Moving onto level {}".format(self.current_level)
             self.allow_move = False
 
     def gravitation(self):
@@ -388,7 +390,7 @@ class TimeMachine(Game):
             '''
             if my_rect.colliderect(player_rect):
                     self.vel = [0, 0]
-                    print "player pos:", self.pos, "other pos", player_pos
+                    #print "player pos:", self.pos, "other pos", player_pos
                     # move off player
                     # if on the left then move a bit to the left
                     if self.player_to_ride == -1:
@@ -448,6 +450,8 @@ class TimeMachine(Game):
         Check if the player is close to the goal.
         Display the "winner!" dialog if game is won
         '''
+        #if self.state == GameState.POPUP:
+        #    return False
         if not self.levels_config:
             return False
         level_text = "Level {}".format(self.current_level)
@@ -552,7 +556,7 @@ class TimeMachine(Game):
         machine_surface.blit(label, (10, 10))
 
 
-        self.disp_surf.blit(machine_surface, (0, 450))
+        self.disp_surf.blit(machine_surface, (0, const.SCREEN_H - 150))
 
     def get_rect(self):
         return pg.Rect(self.pos[0], self.pos[1], const.PLAYER_W, const.PLAYER_H)
@@ -632,7 +636,9 @@ class TimeMachine(Game):
         self.vel = [0, 0]
         self.players = []
         self.time = 0
+        self.new_time = 0
         self.add_player()
+        self.state = GameState.PLAY
 
     def draw_player(self, pos, player_num):
         """Draw a player.
@@ -669,7 +675,7 @@ class TimeMachine(Game):
         pg.draw.line(arrow_surf, (0,0,0), (0, 50), (25, 25), 2)
 
         pg.transform.rotate(arrow_surf, deg_angle)
-        print "Angle", deg_angle
+        #print "Angle", deg_angle
         self.map_surf.blit(arrow_surf, arrow_start)
 
     def draw_arrow_above_character(self):
@@ -719,10 +725,13 @@ class TimeMachine(Game):
                 player = self.players[player_num]
                 player_pos = player.get_position_at_time(self.new_time)
                 if player_pos == None:
+                    print "Player {} didnt exist at time {}".format(player_num, self.new_time)
                     continue
                 # do not draw a player if it does not exist
                 if not player.exists(self.new_time) or player.expired(self.new_time):
+                    #print "Player {} didnt exist at time {}".format(player_num, self.new_time)
                     continue
+
                 self.draw_player((player_pos.x, player_pos.y), player_num + 1)
             self.map_to_display()
             self.draw_machine_ui()
@@ -757,4 +766,8 @@ class TimeMachine(Game):
         # return the surface so it can be blit
 
         #self.draw_popup("this is text", (100, 100))
+
+        if self.state == GameState.GAME_LOSE:
+            return None
+
         return self.disp_surf
