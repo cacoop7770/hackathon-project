@@ -260,11 +260,12 @@ class TimeMachine(Game):
         for platform in self.platforms:
             if not platform.is_vertical():
                 continue
+            
             my_rect = self.get_rect()
             platform_pos = platform.get_start_and_end()
-            wall_top = platform_pos[1] if platform_pos[1] > platform_pos[3] else platform_pos[3]
+            wall_top = platform_pos[1] if platform_pos[1] < platform_pos[3] else platform_pos[3]
             wall_side = platform_pos[0]
-            wall_rect = pg.Rect(platform_pos[0], platform_pos[1], 2, abs(platform_pos[3]-platform_pos[1]))
+            wall_rect = pg.Rect(platform_pos[0], wall_top, 2, abs(platform_pos[3]-platform_pos[1]))
             print "myrect:",my_rect,"platform", wall_rect
             if my_rect.colliderect(wall_rect):
                 # fix position now
