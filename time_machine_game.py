@@ -29,6 +29,7 @@ class TimeMachine(Game):
         self.pos = [300, 300]
         self.jump = False
         self.levels_config = levels_config
+        self.current_level = 1
 
         # keep track of time/# of updates
         self.time = 0
@@ -269,7 +270,7 @@ class TimeMachine(Game):
                 self.vel[1] = 0
 
         # Check if player died
-        if self.pos[1] > const.SCREEN_H:
+        if self.pos[1] > const.DEATH_Y:
             self.state = GameState.GAME_LOSE
 
     def move(self):
@@ -305,7 +306,18 @@ class TimeMachine(Game):
         Check if the player is close to the goal.
         Display the "winner!" dialog if game is won
         '''
-        pass
+        if not self.levels_config:
+            return False
+        level_text = "Level {}".format(self.current_level)
+        if level_text not in self.levels_config:
+            print "Level {} not in the configs".format(self.current_level)
+        this_level = self.levels_config[level_text]
+
+        end_pos = this_level["end"]
+        if end_pos[0] -40 < self.pos[0] < end_pos[0] + 40:
+            if end_pos[1] - 40 < self.pos[1] < end_pos[1] + 40:
+                return True
+        return False
 
     def draw_text(self, text, pos, color=(0, 0, 0), disp=False):
         """
@@ -387,13 +399,13 @@ class TimeMachine(Game):
                     position = player.get_position_at_time(self.time)
                     player.set_position(position)
 
-    def draw_time(self):
+    def draw_time(self, pos):
         #self.draw_text("Current Time: {}".format(self.time), (10, 10), disp=True)
         font = pg.font.SysFont("monospace", 15)
         label = font.render("Current Time: {}".format(self.time), 1, (0, 0, 0))
-        self.disp_surf.blit(label, (10, 10))
+        self.map_surf.blit(label, pos)
 
-    def get_level_start(level_num):
+    def get_level_start(self, level_num):
         if not self.levels_config:
             return
         level_text = "Level {}".format(level_num)
@@ -438,7 +450,12 @@ class TimeMachine(Game):
         )
         rect = pg.Rect(player_pos.x-const.HALF_SCREEN_W, player_pos.y -const.HALF_SCREEN_H, const.MAIN_GAME_W, const.SCREEN_H)
         self.disp_surf.blit(self.map_surf, (0,0), rect) #todo: fix
-    
+   
+    def restart(self):
+        start = self.get_level_start(self.current_level)
+        self.pos = [start[0], start[1]]
+        self.platforms = self.get_platforms(self.current_level)
+
     def redraw(self):
         # -- update the game objects--
         black = (0, 0, 0)
@@ -458,10 +475,10 @@ class TimeMachine(Game):
         #self.draw_portal()
 
         # draw the level objects
-        self.draw_level(1)
+        self.draw_level(self.current_level)
 
         # draw the current time in the upper left corner (draw this later)
-        self.draw_time() 
+        #self.draw_time() 
 
         ## TIME TRAVEL
         if self.state == GameState.TIME_TRAVEL:
@@ -486,6 +503,8 @@ class TimeMachine(Game):
             player_pos = self.players[-1].get_position()
             pg.draw.rect(self.map_surf, blue, [player_pos.x-5, player_pos.y-5, const.PLAYER_W+10, const.PLAYER_H+10])# character
             pg.draw.rect(self.map_surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])# character
+            # draw the current time in the upper left corner (draw this later)
+            self.draw_time((player_pos.x, player_pos.y - 20)) 
 
             # draw all of the past players
             for player_num in range(len(self.players)-1):
@@ -500,5 +519,13 @@ class TimeMachine(Game):
                 self.map_surf.blit(label, (player_pos.x, player_pos.y - 10))
             self.map_to_display()
 
+        
+        if self.check_win():
+            self.state = GameState.GAME_WIN
+            self.current_level += 1
+            print "Moving onto level {}".format(self.current_level)
+            self.state = GameState.PLAY
+            self.restart()
+            #return None
         # return the surface so it can be blit
         return self.disp_surf

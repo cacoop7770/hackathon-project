@@ -50,6 +50,7 @@ class Game:
         self.update_world()
         
         rtn = self.redraw()
+        #if rtn:
         if self.is_active():
             self.__draw_active(rtn)
 

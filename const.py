@@ -58,3 +58,5 @@ PORTAL_Y = 300
 # Convenience
 PORTAL_R = int(.75 * PLAYER_H) # radius
 PORTAL_D = 2 * PORTAL_R # diameter
+
+DEATH_Y = 2000

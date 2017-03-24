@@ -8,6 +8,7 @@ import time
 import const
 from data_center_game import DataCenter
 from delayed_joystick import DelayedJoystick, FutureEvent
+from game_states import GameState
 from time_machine_game import TimeMachine
 
 parser = argparse.ArgumentParser()
@@ -123,8 +124,11 @@ while True:
         tm_surf = tm.update_ui(events)
         dc_surf = dc.update_ui(events)
         if not tm_surf or not dc_surf:
-                print "Game over!"
+            if tm.state == GameState.GAME_WIN:
+                print "YOU WON!"
                 break
+            print "Game over!"
+            break
 
         gameDisplay.blit(dc_surf, (0, 0))
         gameDisplay.blit(tm_surf, (const.DC_W, 0))
