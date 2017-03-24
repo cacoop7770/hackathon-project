@@ -1,10 +1,9 @@
 '''
 ######################################
 # TO DO:
-# - Implement the game states
-# - Maybe add more states
 # - Seperate redraw code according to current game state
 #    -  Some wil share functions such as draw game
+# - Make character get pushed away if touching moving player
 # - 
 ######################################
 '''
