@@ -424,10 +424,6 @@ class TimeMachine(Game):
         # Draw the end portal
         self.draw_portal(pos=this_level["end"])
 
-
-    def draw_character(self):
-        pass
-
     def map_to_display(self):
         """Draw the map onto the display surface (camera code here)."""
         #todo: Move camera around in time travel mode
@@ -438,6 +434,25 @@ class TimeMachine(Game):
         )
         rect = pg.Rect(player_pos.x-const.HALF_SCREEN_W, player_pos.y -const.HALF_SCREEN_H, const.MAIN_GAME_W, const.SCREEN_H)
         self.disp_surf.blit(self.map_surf, (0,0), rect) #todo: fix
+
+    def draw_player(self, pos, player_num):
+        """Draw a player.
+
+        All players look alike except for their number written in the center.
+        pos can be a Vector2 or tuple.
+        """
+        font = pg.font.SysFont('monospace', 50)
+        gray = (128, 128, 128)
+        black = (0, 0, 0)
+        rect = pg.Rect(pos, (const.PLAYER_W, const.PLAYER_H))
+        pg.draw.rect(self.map_surf, gray, rect)
+        pg.draw.rect(self.map_surf, black, rect, const.PLAYER_THICK)
+        text_surf = font.render(str(player_num), True, black, gray)
+        text_pos = pos + pg.math.Vector2(
+            (const.PLAYER_W - text_surf.get_width()) / 2, 
+            (const.PLAYER_H - text_surf.get_height()) / 2
+        )   
+        self.map_surf.blit(text_surf, text_pos)
     
     def redraw(self):
         # -- update the game objects--
@@ -474,18 +489,16 @@ class TimeMachine(Game):
                 # do not draw a player if it does not exist
                 if not player.exists(self.new_time) or player.expired(self.new_time):
                     continue
-                pg.draw.rect(self.map_surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])
-                label = font.render("Player {}".format(player_num + 1), 1, (255, 0, 0))
-                self.map_surf.blit(label, (player_pos.x, player_pos.y - 10))
+                self.draw_player((player_pos.x, player_pos.y), player_num + 1)
             self.map_to_display()
             self.draw_machine_ui()
 
         else:
             ## NOT TIME TRAVEL
             # then draw the current player
-            player_pos = self.players[-1].get_position()
-            pg.draw.rect(self.map_surf, blue, [player_pos.x-5, player_pos.y-5, const.PLAYER_W+10, const.PLAYER_H+10])# character
-            pg.draw.rect(self.map_surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])# character
+            crnt_player = self.players[-1]
+            player_pos = crnt_player.get_position()
+            self.draw_player(player_pos, crnt_player.get_player_num())
 
             # draw all of the past players
             for player_num in range(len(self.players)-1):
@@ -495,9 +508,7 @@ class TimeMachine(Game):
                     continue
                 if not player.exists(self.time) or player.expired(self.time):
                     continue
-                pg.draw.rect(self.map_surf, black, [player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H])
-                label = font.render("Player {}".format(player_num + 1), 1, (255, 0, 0))
-                self.map_surf.blit(label, (player_pos.x, player_pos.y - 10))
+                self.draw_player((player_pos.x, player_pos.y), player_num + 1)
             self.map_to_display()
 
         # return the surface so it can be blit
