@@ -3,7 +3,7 @@ Objects for the time machine game
 
 '''
 import math
-
+import const
 
 class Platform:
     def __init__(self, start_pos, end_pos):
@@ -41,6 +41,17 @@ class Platform:
         return self.start_pos[0] <= position[0] <= self.end_pos[0]\
             and position[1] < self.start_pos[1]\
             and position[1] < self.end_pos[1]
+
+    def is_player_above(self, pos):
+        correct_x1 = pos[0] + const.PLAYER_W >= self.start_pos[0]
+        correct_x2 = pos[0] <= self.end_pos[0]
+        correct_x = correct_x1 and correct_x2
+
+        correct_y1 = pos[1] + const.PLAYER_H < self.start_pos[1]+20
+        correct_y2 = pos[1] + const.PLAYER_H < self.end_pos[1]+20
+        correct_y = correct_y1 and correct_y2
+
+        return correct_x and correct_y
 
     def get_height(self, x_pos):
         '''
