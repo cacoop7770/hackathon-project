@@ -282,16 +282,17 @@ class TimeMachine(Game):
                     continue
                 player_pos = player.get_position()
                 if self.pos[0] + const.PLAYER_W > player_pos.x and self.pos[0] < player_pos.x + const.PLAYER_W:
-                    if player_pos.y < self.pos[1] < player_pos.y + const.PLAYER_H \
-                      or self.pos[1] < player_pos.y < self.pos[1] + const.PLAYER_H:
+                    if player_pos.y <= self.pos[1] <= player_pos.y + const.PLAYER_H \
+                      or self.pos[1] <= player_pos.y <= self.pos[1] + const.PLAYER_H:
                         self.vel = [0, 0]
                         
                         # move off player
                         # if on the left then move a bit to the left
                         if self.pos[0] < player_pos.x:
-                            self.pos[0] -= 1
+                            self.pos[0] = player_pos.x - const.PLAYER_W
                         else:
-                            self.pos[0] += 1
+                            #self.pos[0] += 1
+                            self.pos[0] = player_pos.x + const.PLAYER_W
                         return
 
             # allow the player to move if not touching another player
