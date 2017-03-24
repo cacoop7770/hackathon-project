@@ -42,7 +42,7 @@ PLAYER_THICK = 3
 
 # Here for now
 #gravity = 0.025
-gravity = 0.1
+gravity = 0.3
 #max_speed = 1
 max_speed = 4
 #jump_power = 3
