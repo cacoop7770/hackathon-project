@@ -31,7 +31,7 @@ class DataCenter(Game):
         self.goal_x = 200
         self.goal_y = 50
 
-        self.drift_to = [40, 500]
+        self.drift_to = [40, 550]
         self.drifting = False
         ### EDIT CODE1 ABOVE ###
 
@@ -70,16 +70,16 @@ class DataCenter(Game):
             if direction_down != const.PS_NO_DPAD:
                 self.drifting = False
             if direction_down == const.PS_LEFT:
-                self.lead_x_change = -3
+                self.lead_x_change = -2
             elif direction_down == const.PS_RIGHT:
-                self.lead_x_change = 3
+                self.lead_x_change = 2
             elif direction_down == const.PS_UP:
                 if self.lead_y > 0:
-                    self.lead_y_change = -3
+                    self.lead_y_change = -2
                 else:
                     self.lead_y_change = 0
             elif direction_down == const.PS_DOWN:
-                self.lead_y_change = 3
+                self.lead_y_change = 2
             elif direction_down == const.PS_NO_DPAD:
                 self.drifting = True
                 #self.lead_y_change = 0
@@ -132,10 +132,24 @@ class DataCenter(Game):
 
         ### EDIT CODE2 BELOW ###
         self.surf.fill(blue)
+
+        # draw concentric circles
+        pg.draw.circle(self.surf, (255, 25, 0), [self.goal_x, self.goal_y], 700)
+        pg.draw.circle(self.surf, (255, 100, 0), [self.goal_x, self.goal_y], 500)
+        pg.draw.circle(self.surf, (255, 255, 0), [self.goal_x, self.goal_y], 300)
+        pg.draw.circle(self.surf, (0, 255, 0), [self.goal_x, self.goal_y], 60)
+
         pg.draw.rect(self.surf, black, [self.lead_x, self.lead_y, 30, 30])
 
         # draw the goal
-        pg.draw.rect(self.surf, (0, 255, 0), [self.goal_x, self.goal_y, 50, 50])
+        #pg.draw.rect(self.surf, (0, 255, 0), [self.goal_x, self.goal_y, 50, 50])
+        
+        # draw signal loss area
+        pg.draw.rect(self.surf, (0, 0, 0), [self.drift_to[0], self.drift_to[1], 10, 10])
+        font = pg.font.SysFont("monospace", 15)
+        label = font.render("signal loss area", 1, (255, 255, 255))
+        self.surf.blit(label, (self.drift_to[0], self.drift_to[1] + 30))
+
 
         ### EDIT CODE2 ABOVE ###
 
