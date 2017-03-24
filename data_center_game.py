@@ -33,6 +33,11 @@ class DataCenter(Game):
 
         self.drift_to = [40, const.SCREEN_H - 100]
         self.drifting = False
+
+        image = pg.image.load('dcImage.jpg')
+        new_size = .2 * pg.math.Vector2(image.get_size())
+        self.image = pg.transform.scale(image, (int(new_size.x), int(new_size.y)))
+        
         ### EDIT CODE1 ABOVE ###
 
 
@@ -143,6 +148,7 @@ class DataCenter(Game):
         pg.draw.rect(self.surf, black, [self.lead_x, self.lead_y, 30, 30])
 
         # draw the goal
+        self.surf.blit(self.image, [self.goal_x - self.image.get_width() / 2, self.goal_y - self.image.get_height() / 2])
         #pg.draw.rect(self.surf, (0, 255, 0), [self.goal_x, self.goal_y, 50, 50])
         
         # draw signal loss area
