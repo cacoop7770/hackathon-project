@@ -646,7 +646,6 @@ class TimeMachine(Game):
         # first fill the backgrounds
         self.map_surf.fill(white)
         self.disp_surf.fill(black)
-        pg.draw.rect(self.map_surf, green, [400, 300, 20, 20])# reference box
         #pg.draw.rect(self.map_surf, green, [0, 20, 20, 20])# reference box
         
         # Draw the beginning portal
