@@ -101,6 +101,21 @@ class TimeMachine(Game):
             self.handle_game_event(event)
         elif self.state == GameState.TIME_TRAVEL:
             self.handle_backwards_event(event)
+        elif self.state == GameState.POPUP:
+            self.handle_popup_event(event)
+
+    def handle_popup_event(self, event):
+        '''
+        Handles the event for the game when there is a popup
+
+        :param: event: the event given from update_ui
+        :type: event: pygame.Event object
+
+        :return: None
+        :rtype: None
+        '''
+        pass
+
 
     def handle_backwards_event(self, event):
         '''
@@ -235,7 +250,7 @@ class TimeMachine(Game):
          # check platforms for landing on 
         landings_to_check = []
         for platform in self.platforms:
-            if platform.is_above_platform(self.pos):
+            if platform.is_player_above(self.pos):
                 landings_to_check.append(platform.get_height(self.pos))
 
         # if that platform isn't under you anymore
@@ -256,14 +271,15 @@ class TimeMachine(Game):
               
         for landing in landings_to_check:
             if landing < self.current_landing_y:
+                #if self.pos[1] + const.PLAYER_H < landing:
                 self.current_landing_y = landing
        
         # perform the gravity
-        if self.jump or self.pos[1] < self.current_landing_y:
+        if self.jump or self.pos[1] + const.PLAYER_H < self.current_landing_y:
             self.vel[1] += const.gravity
 
         # stopping conditions
-        if self.pos[1] > self.current_landing_y - const.PLAYER_H:
+        if self.pos[1] + const.PLAYER_H > self.current_landing_y:
             # make sure on way down
             if self.vel[1] > 0:
                 self.jump = False
@@ -319,6 +335,30 @@ class TimeMachine(Game):
                 return True
         return False
 
+    def draw_popup(self, text, disp_location):
+        '''
+        Draws a popup with given text on the screen
+        
+        :param: text: the text to display
+        :type: text: str
+        :param: disp_location: Location on the display surface for the popup
+        :type: disp_location: tuple (x, y)
+
+        '''
+        # draw a new surface
+        size = width, height =(400, 100)
+        popup = pg.Surface(size)
+        popup.fill((0, 0, 0))
+        popup.fill((255, 255, 255), [10, 10, width - 20, height - 20])
+
+        # write the text on the surface
+        font = pg.font.SysFont("monospace", 15)
+        label = font.render(text, 1, (0, 0, 0))
+        popup.blit(label, (20, 20))
+
+        self.disp_surf.blit(popup, disp_location)
+
+
     def draw_text(self, text, pos, color=(0, 0, 0), disp=False):
         """
         Draws text onto the map surface
@@ -357,9 +397,6 @@ class TimeMachine(Game):
         pg.draw.rect(port_surf, (255, 255, 0), rect, const.PLAYER_THICK)
         self.map_surf.blit(port_surf, pos - (pg.math.Vector2(rad, rad) - pg.math.Vector2(p_w2, p_h2)))
 #        self.draw_text("Portal", (pos[0], pos[1] - 20), color=(255, 0, 0))
-
-        
-        
 
     def draw_machine_ui(self):
         '''
@@ -538,4 +575,6 @@ class TimeMachine(Game):
             self.restart()
             #return None
         # return the surface so it can be blit
+
+        #self.draw_popup("this is text", (100, 100))
         return self.disp_surf
