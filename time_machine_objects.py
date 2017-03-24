@@ -10,6 +10,9 @@ class Platform:
         self.start_pos = start_pos
         self.end_pos = end_pos
 
+    def get_start_and_end(self):
+        return [self.start_pos[0], self.start_pos[1], self.end_pos[0], self.end_pos[1]]
+
     def distance(self, p1, p2):
         """
         Get the distance between two points
@@ -33,12 +36,16 @@ class Platform:
             - self.distance(self.start_pos, self.end_pos)
         return -epsilon < value < epsilon
 
+    def is_vertical(self):
+        return self.start_pos[0] == self.end_pos[0]
+
     def is_above_platform(self, position):
         '''
         Verify the given position is above the platform
         '''
         # easy way
-        return self.start_pos[0] <= position[0] <= self.end_pos[0]\
+        return not self.is_vertical()\
+            and self.start_pos[0] <= position[0] <= self.end_pos[0]\
             and position[1] < self.start_pos[1]\
             and position[1] < self.end_pos[1]
 
