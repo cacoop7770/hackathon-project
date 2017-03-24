@@ -563,14 +563,15 @@ class TimeMachine(Game):
         this_level = self.levels_config[level_text]
         return this_level["start"]
 
+    def get_level(self, level_num):
+        """Return the level from levels_config."""
+        return self.levels_config['Level %s' % level_num]
+
     def draw_level(self, level_num):
         if not self.levels_config:
             return
-        level_text = "Level {}".format(level_num)
-        if level_text not in self.levels_config:
-            print "Level {} not in the configs".format(level_num)
-        this_level = self.levels_config[level_text]
-        
+        this_level = self.get_level(level_num)
+
         # draw lines
         for platform in self.platforms:
             #lines = [this_level[key] for key in this_level if key.startswith("line")]
@@ -594,7 +595,8 @@ class TimeMachine(Game):
             player_pos.y - const.HALF_SCREEN_H
         )
         rect = pg.Rect(player_pos.x-const.HALF_SCREEN_W, player_pos.y -const.HALF_SCREEN_H, const.MAIN_GAME_W, const.SCREEN_H)
-        self.disp_surf.blit(self.map_surf, (0,0), rect) #todo: fix
+        self.disp_surf.blit(self.map_surf, (0,0), rect)
+        
    
     def restart(self):
         start = self.get_level_start(self.current_level)
@@ -622,7 +624,7 @@ class TimeMachine(Game):
             (const.PLAYER_W - text_surf.get_width()) / 2, 
             (const.PLAYER_H - text_surf.get_height()) / 2
         )   
-        self.map_surf.blit(text_surf, text_pos)
+        self.map_surf.blit(text_surf, text_pos)        
     
     def redraw(self):
         # -- update the game objects--
