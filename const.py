@@ -53,3 +53,7 @@ MAP_H = 3000
 # position of the portal
 PORTAL_X = 300
 PORTAL_Y = 300
+
+# Convenience
+PORTAL_R = int(.75 * PLAYER_H) # radius
+PORTAL_D = 2 * PORTAL_R # diameter
