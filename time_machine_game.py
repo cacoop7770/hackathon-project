@@ -253,19 +253,23 @@ class TimeMachine(Game):
         # Move time forward and  store current player's position
         if self.state == GameState.PLAY:
             self.time += 1
-            if self.time % 2 == 0:
+            if self.time % 1 == 0:
                 player_pos = self.players[-1].get_position()
                 self.players[-1].record_position(player_pos, self.time)
+        
+        # move past players
+        if self.time < self.past_time:
+            self.move_past_players_through_time()
 
         # update position from speed
         self.move()
 
         # update position from gravity
         self.gravitation()
-
-        # move past players
-        if self.time < self.past_time:
-            self.move_past_players_through_time()
+        
+        # do not let player run into other players
+        if self.check_player_collisions():
+            return
 
         # Check if player won
         if self.check_win():
@@ -327,6 +331,37 @@ class TimeMachine(Game):
         if self.pos[1] > const.DEATH_Y:
             self.state = GameState.GAME_LOSE
 
+    def check_player_collisions(self):
+        '''
+        Returns true if there is a collision
+        '''
+        my_rect = pg.Rect(self.pos[0], self.pos[1], const.PLAYER_W, const.PLAYER_H)
+        for player in self.players:
+            if not isinstance(player, PastPlayer):
+                continue
+            if not player.exists(self.time) or player.expired(self.time):
+                continue
+            player_pos = player.get_position()
+            player_rect = pg.Rect(player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H)
+            '''
+            if self.pos[0] + const.PLAYER_W > player_pos.x and self.pos[0] < player_pos.x + const.PLAYER_W:
+                if player_pos.y <= self.pos[1] <= player_pos.y + const.PLAYER_H \
+                  or self.pos[1] <= player_pos.y <= self.pos[1] + const.PLAYER_H:
+            '''
+            if my_rect.colliderect(player_rect):
+                    self.vel = [0, 0]
+                    print "player pos:", self.pos, "other pos", player_pos 
+                    # move off player
+                    # if on the left then move a bit to the left
+                    if self.player_to_ride == -1:
+                        if self.pos[0] < player_pos.x:
+                            self.pos[0] = player_pos.x - const.PLAYER_W
+                        else:
+                            #self.pos[0] += 1
+                            self.pos[0] = player_pos.x + const.PLAYER_W
+                        return True
+        return False
+
     def move(self):
         if not self.allow_move:
             return
@@ -338,18 +373,21 @@ class TimeMachine(Game):
             self.pos[1] = ride.get_position().y - const.PLAYER_H
 
         #if self.vel != [0, 0]:
-            # do not let player run into other players
+        # do not let player run into other players
+        #if self.check_player_collisions():
+        #    return
+        ''' 
+        my_rect = pg.Rect(self.pos[0], self.pos[1], const.PLAYER_W, const.PLAYER_H)
         for player in self.players:
             if not isinstance(player, PastPlayer):
                 continue
             if not player.exists(self.time) or player.expired(self.time):
                 continue
             player_pos = player.get_position()
-            if self.pos[0] + const.PLAYER_W > player_pos.x and self.pos[0] < player_pos.x + const.PLAYER_W:
-                if player_pos.y <= self.pos[1] <= player_pos.y + const.PLAYER_H \
-                  or self.pos[1] <= player_pos.y <= self.pos[1] + const.PLAYER_H:
+            player_rect = pg.Rect(player_pos.x, player_pos.y, const.PLAYER_W, const.PLAYER_H)
+            if my_rect.colliderect(player_rect):
                     self.vel = [0, 0]
-                    
+                    print "player pos:", self.pos, "other pos", player_pos 
                     # move off player
                     # if on the left then move a bit to the left
                     if self.player_to_ride == -1:
@@ -359,6 +397,8 @@ class TimeMachine(Game):
                             #self.pos[0] += 1
                             self.pos[0] = player_pos.x + const.PLAYER_W
                         return
+        '''
+
 
         # allow the player to move if not touching another player
         self.pos[0] += self.vel[0]
@@ -538,6 +578,8 @@ class TimeMachine(Game):
         self.platforms = self.get_platforms(self.current_level)
         self.allow_move = True
         self.vel = [0, 0]
+        self.players = []
+        self.add_player()
 
     def draw_player(self, pos, player_num):
         """Draw a player.

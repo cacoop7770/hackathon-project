@@ -28,10 +28,10 @@ class DataCenter(Game):
         self.lead_x_change = 0
         self.lead_y_change = 0
 
-        self.goal_x = 200
+        self.goal_x = const.DC_W - 100
         self.goal_y = 50
 
-        self.drift_to = [40, 550]
+        self.drift_to = [40, const.SCREEN_H - 100]
         self.drifting = False
         ### EDIT CODE1 ABOVE ###
 
@@ -91,19 +91,19 @@ class DataCenter(Game):
         if not self.is_active():
             self.drifting = True
 
-        if self.lead_x >= 0 and self.lead_x <= 350:
+        if self.lead_x >= 0 and self.lead_x <= const.DC_W:
             self.lead_x += self.lead_x_change
-        if self.lead_y >=0 and self.lead_y <= 600:
+        if self.lead_y >=0 and self.lead_y <= const.SCREEN_H:
             self.lead_y += self.lead_y_change
 
         if self.lead_x < 0:
             self.lead_x = 0
-        if self.lead_x > 350:
-            self.lead_x = 350
+        if self.lead_x > const.DC_W:
+            self.lead_x = const.DC_W
         if self.lead_y < 0:
             self.lead_y = 0
-        if self.lead_y > 600:
-            self.lead_y = 650
+        if self.lead_y > const.SCREEN_H:
+            self.lead_y = const.SCREEN_H
         clock.tick(60)
 
         # move character if not moving
@@ -131,13 +131,14 @@ class DataCenter(Game):
         """Redraw the datacenter surface and return it."""
 
         ### EDIT CODE2 BELOW ###
-        self.surf.fill(blue)
+        self.surf.fill((255, 0, 0))
 
         # draw concentric circles
-        pg.draw.circle(self.surf, (255, 25, 0), [self.goal_x, self.goal_y], 700)
-        pg.draw.circle(self.surf, (255, 100, 0), [self.goal_x, self.goal_y], 500)
-        pg.draw.circle(self.surf, (255, 255, 0), [self.goal_x, self.goal_y], 300)
-        pg.draw.circle(self.surf, (0, 255, 0), [self.goal_x, self.goal_y], 60)
+        pg.draw.circle(self.surf, (255, 125, 0), [self.goal_x, self.goal_y], 700)
+        pg.draw.circle(self.surf, (255, 190, 0), [self.goal_x, self.goal_y], 500)
+        pg.draw.circle(self.surf, (255, 255, 100), [self.goal_x, self.goal_y], 300)
+        #pg.draw.circle(self.surf, (0, 255, 0), [self.goal_x, self.goal_y], 60)
+        pg.draw.circle(self.surf, (255, 255, 255), [self.goal_x, self.goal_y], 60)
 
         pg.draw.rect(self.surf, black, [self.lead_x, self.lead_y, 30, 30])
 

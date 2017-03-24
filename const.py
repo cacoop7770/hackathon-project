@@ -30,9 +30,12 @@ PS_JOYSTICK_RIGHT_X = 2
 PS_JOYSTICK_RIGHT_Y = 3
 
 # Screen sizes
-DC_W = 350
-MAIN_GAME_W = 650# Time machine game
-SCREEN_H = 600
+DC_W = 450
+MAIN_GAME_W = 1000# Time machine game
+SCREEN_H = 800
+#DC_W = 350
+#MAIN_GAME_W = 650# Time machine game
+#SCREEN_H = 600
 HALF_SCREEN_H = SCREEN_H / 2
 HALF_SCREEN_W = (DC_W + MAIN_GAME_W) / 2
 
