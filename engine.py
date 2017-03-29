@@ -60,7 +60,7 @@ delayed_joystick = DelayedJoystick()
 game_time = time.time()
 
 # keep track of current time delay
-game_delay = 0
+game_delay = 02
 
 # start the game
 while True:
@@ -80,19 +80,28 @@ while True:
                 break
 
     # if there is a delay, add all events to the delayed controller
+
     if game_delay > 0:
+        desired_events = []
         for event in events:
-            if event.type == pg.JOYAXISMOTION or event.type == pg.ACTIVEEVENT or event.type == pg.MOUSEMOTION:
+            if event.type == pg.JOYAXISMOTION\
+                or event.type == pg.ACTIVEEVENT\
+                or event.type == pg.MOUSEMOTION:
+                continue
+            if (event.type == pg.JOYBUTTONDOWN and event.button in [const.PS_R1, const.PS_L1]): 
+                desired_events.append(event)
                 continue
             event_time = game_time + game_delay
             print "Delayed event:\n\tevent: {}\n\tevent time: {}\n\tcurrent time: {}".format(event, event_time, game_time)
             future_event = FutureEvent(event_time, event)
             delayed_joystick.add_event(future_event)
-        events = []
+        events = desired_events
 
         # Check future events and add them to the events
         queued_events = delayed_joystick.queue_event(game_time)
         events.extend(queued_events)
+        if queued_events:
+            print "**QUEUED EVENTS: {}".format(queued_events)
         delayed_joystick.delete_queued_events()
 
     # change active game

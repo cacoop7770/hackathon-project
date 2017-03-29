@@ -45,6 +45,7 @@ class DelayedJoystick:
         :return: List of events that were queued
         :rtype: List
         """
+        self._queued_events = []
         self.events = sorted(self.events, key = lambda x: x.time)
         for num in range(len(self.events)):
             event = self.events[num]

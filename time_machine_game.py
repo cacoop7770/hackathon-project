@@ -381,7 +381,7 @@ class TimeMachine(Game):
         # Check if player died
         if self.pos[1] > self.get_death_height():
             self.state = GameState.GAME_LOSE
-        print "posoition", self.pos
+        #print "posoition", self.pos
 
     def check_player_collisions(self):
         '''
