@@ -37,11 +37,11 @@ class DataCenter(Game):
         image = pg.image.load('dcImage.jpg')
         new_size = .2 * pg.math.Vector2(image.get_size())
         self.image = pg.transform.scale(image, (int(new_size.x), int(new_size.y)))
-        
+
         ### EDIT CODE1 ABOVE ###
 
 
-    
+
 
     def handle_event(self, event):
         """handle keyboard or ds4"""
@@ -121,8 +121,8 @@ class DataCenter(Game):
             x_component = math.sin(angle)
             y_component = math.cos(angle)
 
-            self.lead_x_change = x_component/2.0
-            self.lead_y_change = y_component/2.0
+            self.lead_x_change = x_component/1.5
+            self.lead_y_change = y_component/1.5
 
         # losing conditions
         if self.drift_to[0] - 1 < self.lead_x < self.drift_to[0] + 1 \
@@ -152,7 +152,7 @@ class DataCenter(Game):
         # draw character
         pg.draw.rect(self.surf, black, [self.lead_x, self.lead_y, 30, 30])
 
-        
+
         # draw signal loss area
         pg.draw.rect(self.surf, (0, 0, 0), [self.drift_to[0], self.drift_to[1], 10, 10])
         font = pg.font.SysFont("monospace", 15)

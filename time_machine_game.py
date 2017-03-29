@@ -270,7 +270,7 @@ class TimeMachine(Game):
         for platform in self.platforms:
             if not platform.is_vertical():
                 continue
-            
+
             my_rect = self.get_rect()
             platform_pos = platform.get_start_and_end()
             wall_top = platform_pos[1] if platform_pos[1] < platform_pos[3] else platform_pos[3]
@@ -282,7 +282,7 @@ class TimeMachine(Game):
                 #print "******myrect:",my_rect,"platform", wall_rect
                 if self.pos[0] < wall_side - 20:
                     self.pos[0] = wall_side - const.PLAYER_W
-                
+
                 if self.pos[0] + const.PLAYER_W > wall_side + 20:
                     self.pos[0] = wall_side + 5
                 return True
@@ -380,8 +380,7 @@ class TimeMachine(Game):
 
         # Check if player died
         if self.pos[1] > self.get_death_height():
-            self.state = GameState.GAME_LOSE
-        #print "posoition", self.pos
+            self.restart()
 
     def check_player_collisions(self):
         '''
@@ -551,7 +550,7 @@ class TimeMachine(Game):
 
         # draw the surface for the time machine
         machine_surface = pg.Surface((const.MAIN_GAME_W, 150))
-        
+
         # make the strip grey
         machine_surface.fill((100, 100, 100))
 
@@ -584,7 +583,7 @@ class TimeMachine(Game):
                 if player.exists(self.time):
                     position = player.get_position_at_time(self.time)
                     player.set_position(position)
-                    
+
                     # check if this player is squishing the current player
                     my_rect = self.get_rect()
                     player_rect = player.get_rect()
@@ -656,7 +655,7 @@ class TimeMachine(Game):
             dest = pg.math.Vector2(const.HALF_MAIN_W - arrow_surf.get_width() / 2, const.HALF_SCREEN_H - arrow_surf.get_height() / 2)
             dest += vec_to_end.normalize() * const.PLAYER_H
             self.disp_surf.blit(arrow_surf, dest)
-   
+
     def level_exists(self, level):
         return "Level {}".format(level) in self.levels_config
 
@@ -688,9 +687,9 @@ class TimeMachine(Game):
         text_pos = pos + pg.math.Vector2(
             (const.PLAYER_W - text_surf.get_width()) / 2,
             (const.PLAYER_H - text_surf.get_height()) / 2
-        )   
-        self.map_surf.blit(text_surf, text_pos)        
-    
+        )
+        self.map_surf.blit(text_surf, text_pos)
+
     def redraw(self):
         # -- update the game objects--
         black = (0, 0, 0)
@@ -741,9 +740,9 @@ class TimeMachine(Game):
             crnt_player = self.players[-1]
             player_pos = crnt_player.get_position()
             self.draw_player(player_pos, crnt_player.get_player_num())
-            
+
             # draw time above player
-            self.draw_time((player_pos.x-20, player_pos.y - 20)) 
+            self.draw_time((player_pos.x-20, player_pos.y - 20))
 
             # draw all of the past players
             for player_num in range(len(self.players)-1):
