@@ -129,7 +129,11 @@ class DataCenter(Game):
            and self.drift_to[1] - 1 < self.lead_y < self.drift_to[1] + 1:
             self.state = GameState.GAME_LOSE
 
+    def get_distance_to_dc(self):
+        return math.sqrt((self.lead_x - self.goal_x)**2 + (self.lead_y - self.goal_y)**2)
+
     def get_delay(self):
+        self.delay = float(self.get_distance_to_dc()) / 350.0
         return self.delay
 
     def redraw(self):
@@ -151,6 +155,11 @@ class DataCenter(Game):
 
         # draw character
         pg.draw.rect(self.surf, black, [self.lead_x, self.lead_y, 30, 30])
+
+        # write delay
+        font = pg.font.SysFont("monospace", 15)
+        label = font.render("Delay: {:0.02f} sec".format(self.get_delay()), 3, black)
+        self.surf.blit(label, (10, 10))
 
 
         # draw signal loss area

@@ -60,7 +60,7 @@ delayed_joystick = DelayedJoystick()
 game_time = time.time()
 
 # keep track of current time delay
-game_delay = 02
+game_delay = 0.5
 
 # start the game
 while True:
@@ -81,7 +81,7 @@ while True:
 
     # if there is a delay, add all events to the delayed controller
 
-    if game_delay > 0:
+    if game_delay > 0 and tm.is_active():
         desired_events = []
         for event in events:
             if event.type == pg.JOYAXISMOTION\
@@ -135,6 +135,7 @@ while True:
         #>>>>>>> c2d3dfa24017c170c2c004ed5e0b491a57af09d0
         dc_surf = dc.update_ui(events)
         gameDisplay.blit(dc_surf, (0, 0))
+        game_delay = dc.get_delay()
 
     pg.display.flip()
 
