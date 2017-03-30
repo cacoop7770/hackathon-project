@@ -13,17 +13,30 @@ from game_states import GameState
 from time_machine_game import TimeMachine
 
 parser = argparse.ArgumentParser()
-parser.add_argument('game', nargs='?', choices=['tm', 'dc'], help='Launch this game only')
+parser.add_argument('-tm', action='store_true', default=False, help='Launch this game only')
+parser.add_argument('-dc', action='store_true', default=False, help='Launch this game only')
+parser.add_argument('--level', action='store', dest='level', type=int)
 args = parser.parse_args()
 
 # initialize pygame and the display
 pg.init()
-if args.game is None:
-    display_width = const.DC_W + const.MAIN_GAME_W
-elif args.game == 'tm':
+display_width = const.DC_W
+start_level = 1
+game = None
+#if args.game is None:
+#    display_width = const.DC_W + const.MAIN_GAME_W
+if args.tm:
     display_width = const.MAIN_GAME_W
-else:
+    game = "TM"
+elif args.dc:
     display_width = const.DC_W
+    game = "DC"
+else:
+    display_width = const.DC_W + const.MAIN_GAME_W
+    
+if args.level:
+    start_level = args.level
+
 gameDisplay = pg.display.set_mode((
     display_width,
     const.SCREEN_H
@@ -46,14 +59,19 @@ with open('levels.json') as f_obj:
 print data
 
 # init the games
-if args.game is None:
+tm = None
+dc = None
+if game is None:
     tm = TimeMachine(controller, levels_config=data)
     dc = DataCenter(controller)
     dc.deactivate()
-elif args.game == 'tm':
+elif game == "TM":
     tm = TimeMachine(controller, levels_config=data)
 else:
     dc = DataCenter(controller)
+
+if tm:
+    tm.set_level(start_level)
 delayed_joystick = DelayedJoystick()
 
 # keep track of game time
@@ -81,7 +99,7 @@ while True:
 
     # if there is a delay, add all events to the delayed controller
 
-    if game_delay > 0 and tm.is_active():
+    if game_delay > 0 and tm.is_active() and tm.state != GameState.TIME_TRAVEL:
         desired_events = []
         for event in events:
             if event.type == pg.JOYAXISMOTION\
@@ -105,7 +123,7 @@ while True:
         delayed_joystick.delete_queued_events()
 
     # change active game
-    if args.game is None:
+    if game is None:
         for event in events:
             if event.type == pg.JOYBUTTONDOWN:
                 if event.button == const.PS_R1:
@@ -115,7 +133,7 @@ while True:
                     tm.deactivate()
                     dc.activate()
 
-    if args.game is None:
+    if game is None:
         # update the the surface of each game
         tm_surf = tm.update_ui(events)
         dc_surf = dc.update_ui(events)
@@ -128,7 +146,7 @@ while True:
 
         gameDisplay.blit(dc_surf, (0, 0))
         gameDisplay.blit(tm_surf, (const.DC_W, 0))
-    elif args.game == 'tm':
+    elif game == 'TM':
         tm_surf = tm.update_ui(events)
         gameDisplay.blit(tm_surf, (0, 0))
     else:

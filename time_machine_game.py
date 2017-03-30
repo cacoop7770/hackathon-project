@@ -52,6 +52,10 @@ class TimeMachine(Game):
         self.platforms = self.get_platforms(1)
         self.current_landing_y = 1000
 
+    def set_level(self, level):
+        self.current_level = level
+        self.restart()
+
     def get_death_height(self):
         level = self.get_current_level()
         return level["death"]
