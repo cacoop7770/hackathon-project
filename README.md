@@ -1,6 +1,9 @@
 Our hackathon game
 ---
-to run: python engine.py
+to run: python engine.py [--level] [-tm] [-dc]
+to run only time machine game: python engine.py -tm
+to run only data center game: python engine.py -dc
+to run and start at level XX: python engine.py --level XX
 
 Game buttons (on ds4):
 ---
