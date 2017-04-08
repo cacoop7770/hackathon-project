@@ -16,6 +16,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-tm', action='store_true', default=False, help='Launch this game only')
 parser.add_argument('-dc', action='store_true', default=False, help='Launch this game only')
 parser.add_argument('--level', action='store', dest='level', type=int)
+parser.add_argument('--no_delay', action='store_true', dest='no_delay', default=False)
 args = parser.parse_args()
 
 # initialize pygame and the display
@@ -33,7 +34,11 @@ elif args.dc:
     game = "DC"
 else:
     display_width = const.DC_W + const.MAIN_GAME_W
-    
+
+DELAY = True
+if args.no_delay:
+    DELAY = False
+
 if args.level:
     start_level = args.level
 
@@ -99,7 +104,7 @@ while True:
 
     # if there is a delay, add all events to the delayed controller
 
-    if game_delay > 0 and tm.is_active() and tm.state != GameState.TIME_TRAVEL:
+    if DELAY and game_delay > 0 and tm.is_active() and tm.state != GameState.TIME_TRAVEL:
         desired_events = []
         for event in events:
             if event.type == pg.JOYAXISMOTION\
