@@ -34,6 +34,7 @@ class TimeMachine(Game):
         # keep track of time/# of updates
         self.time = 0
         self.new_time = 0
+	self.new_time_add = 0
         self.past_time = 0# the moment of time you changed the time
 
         # keep track of all players
@@ -172,9 +173,9 @@ class TimeMachine(Game):
 
                 return
             if event.key == pg.K_LEFT:
-                self.new_time -= 2
+                self.new_time -= 5#2
             if event.key == pg.K_RIGHT:
-                self.new_time += 2
+                self.new_time += 5#2
 
         if event.type == pg.JOYBUTTONDOWN:
             if event.button == const.PS_TRI:
@@ -194,9 +195,13 @@ class TimeMachine(Game):
             if hat == const.PS_LEFT:
                 # move lefti
                 self.new_time -= 2
+		self.new_time_add = -2
             elif hat == const.PS_RIGHT:
                 # move right
                 self.new_time += 2
+		self.new_time_add = 2
+            elif hat == const.PS_NO_DPAD:
+		self.new_time_add = 0
 
         if self.new_time > self.time:
             self.new_time = self.time
@@ -423,6 +428,7 @@ class TimeMachine(Game):
 
         # do not move during time travel mode
         if self.state == GameState.TIME_TRAVEL:
+	    self.new_time += self.new_time_add
             return
 
         # if riding ontop a player
