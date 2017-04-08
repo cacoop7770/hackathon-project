@@ -650,7 +650,11 @@ class TimeMachine(Game):
         #todo: Move camera around in time travel mode
         player_pos = self.players[-1].get_position()
 
-        rect = pg.Rect(player_pos.x-const.HALF_MAIN_W, player_pos.y -const.HALF_SCREEN_H, const.MAIN_GAME_W, const.SCREEN_H)
+	if self.state == GameState.TIME_TRAVEL:
+	    player_pos = self.players[-1].get_position_at_time(self.new_time) 
+            rect = pg.Rect(player_pos.x-const.HALF_MAIN_W, player_pos.y -const.HALF_SCREEN_H, const.MAIN_GAME_W, const.SCREEN_H)
+	else:
+            rect = pg.Rect(player_pos.x-const.HALF_MAIN_W, player_pos.y -const.HALF_SCREEN_H, const.MAIN_GAME_W, const.SCREEN_H)
         self.disp_surf.blit(self.map_surf, (0,0), rect)
 
         # Draw an arrow to the goal.
